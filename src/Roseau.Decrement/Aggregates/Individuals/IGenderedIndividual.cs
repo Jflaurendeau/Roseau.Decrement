@@ -2,5 +2,5 @@
 
 public interface IGenderedIndividual : IIndividual
 {
-	public Gender BinaryGender { get; }
+	public Gender Gender { get; }
 }

@@ -16,7 +16,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Aggregates\Decrements\" />
     <Folder Include="Common\" />
   </ItemGroup>
 
