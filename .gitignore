@@ -369,3 +369,5 @@ FodyWeavers.xsd
 /src/Roseau.Decrement/Aggregates/Decrements/LifeTables/Cpm2014Priv.cs
 /src/Roseau.Decrement/Aggregates/Decrements/LifeTables/Cpm2014Combined.cs
 /src/Roseau.Decrement/Aggregates/Decrements/ImprovementScales/CpmB.cs
+/tests/Roseau.Decrement.UnitTests/Aggregates/Decrements/LifeTables/Cpm2014Test.cs
+/tests/Roseau.Decrement.UnitTests/Aggregates/Decrements/ImprovementScales/CpmBTest.cs
