@@ -365,3 +365,6 @@ FodyWeavers.xsd
 # Benchmark
 /tests/Roseau.Decrement.Benchmark/
 
+/src/Roseau.Decrement/Aggregates/Decrements/LifeTables/Cpm2014Priv.cs
+/src/Roseau.Decrement/Aggregates/Decrements/LifeTables/Cpm2014Combined.cs
+/src/Roseau.Decrement/Aggregates/Decrements/ImprovementScales/CpmB.cs

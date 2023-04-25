@@ -34,7 +34,7 @@ public class Cpm2014Test
         scaleMocked.Setup(x => x.ImprovementFactor(personMocked.Object, 2014, calculationDate))
             .Returns(0.7m);
 
-        Cpm2014Combined cPM2014LiteTable = new(scaleMocked.Object, adjustmentFactorMocked.Object);
+        Cpm2014Priv cPM2014LiteTable = new(scaleMocked.Object, adjustmentFactorMocked.Object);
 
         // Act
         survivalProbability = cPM2014LiteTable.SurvivalProbability(personMocked.Object, calculationDate, calculationDate.AddYears(1));
