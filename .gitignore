@@ -368,3 +368,7 @@ FodyWeavers.xsd
 /src/Roseau.Decrement/Aggregates/Decrements/LifeTables/Cpm2014Priv.cs
 /src/Roseau.Decrement/Aggregates/Decrements/LifeTables/Cpm2014Combined.cs
 /src/Roseau.Decrement/Aggregates/Decrements/ImprovementScales/CpmB.cs
+/src/Roseau.Decrement/Aggregates/Decrements/LifeTables/Cpm2014Priv.cs
+/src/Roseau.Decrement/Aggregates/Decrements/LifeTables/Cpm2014Combined.cs
+/src/Roseau.Decrement/Aggregates/Decrements/ImprovementScales/CpmB.cs
+/bfg-1.14.0.jar
