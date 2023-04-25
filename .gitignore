@@ -365,11 +365,7 @@ FodyWeavers.xsd
 # Benchmark
 /tests/Roseau.Decrement.Benchmark/
 
+# Cpm2014 Tables commissionned by the CIA
 /src/Roseau.Decrement/Aggregates/Decrements/LifeTables/Cpm2014Priv.cs
 /src/Roseau.Decrement/Aggregates/Decrements/LifeTables/Cpm2014Combined.cs
 /src/Roseau.Decrement/Aggregates/Decrements/ImprovementScales/CpmB.cs
-/src/Roseau.Decrement/Aggregates/Decrements/LifeTables/Cpm2014Priv.cs
-/src/Roseau.Decrement/Aggregates/Decrements/LifeTables/Cpm2014Combined.cs
-/src/Roseau.Decrement/Aggregates/Decrements/ImprovementScales/CpmB.cs
-/bfg-1.14.0.jar
-/src/Roseau.Decrement/Aggregates/Decrements/LifeTables/Cpm2014.cs
