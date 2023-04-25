@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33516.290
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Roseau.Decrement", "src\Roseau.Decrement\Roseau.Decrement.csproj", "{C77D665C-F9F1-43ED-BC9B-05B334420F46}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Roseau.Decrement", "src\Roseau.Decrement\Roseau.Decrement.csproj", "{C77D665C-F9F1-43ED-BC9B-05B334420F46}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Roseau.Decrement.UnitTests", "tests\Roseau.Decrement.UnitTests\Roseau.Decrement.UnitTests.csproj", "{6D43B7F7-5BD5-49E3-BA54-ACA6C76FCE6A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Roseau.Decrement.UnitTests", "tests\Roseau.Decrement.UnitTests\Roseau.Decrement.UnitTests.csproj", "{6D43B7F7-5BD5-49E3-BA54-ACA6C76FCE6A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Roseau.Decrement.Benchmark", "tests\Roseau.Decrement.Benchmark\Roseau.Decrement.Benchmark.csproj", "{C68C0E3C-13D1-4415-A372-4D3C7E4E08FE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{6D43B7F7-5BD5-49E3-BA54-ACA6C76FCE6A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6D43B7F7-5BD5-49E3-BA54-ACA6C76FCE6A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6D43B7F7-5BD5-49E3-BA54-ACA6C76FCE6A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C68C0E3C-13D1-4415-A372-4D3C7E4E08FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C68C0E3C-13D1-4415-A372-4D3C7E4E08FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C68C0E3C-13D1-4415-A372-4D3C7E4E08FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C68C0E3C-13D1-4415-A372-4D3C7E4E08FE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
