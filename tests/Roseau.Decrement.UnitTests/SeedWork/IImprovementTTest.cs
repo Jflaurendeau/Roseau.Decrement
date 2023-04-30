@@ -13,7 +13,7 @@ public class IImprovementTTest
 	{
 		// Arrange
 		var defaultFromInterface = IImprovement<IIndividual>.Default;
-		var defaultFromInstance = Improvement<IIndividual>.Default;
+		var defaultFromInstance = ImprovementDefault<IIndividual>.Default;
 		// Act
 		// Assert
 		Assert.AreEqual(defaultFromInstance, defaultFromInterface);

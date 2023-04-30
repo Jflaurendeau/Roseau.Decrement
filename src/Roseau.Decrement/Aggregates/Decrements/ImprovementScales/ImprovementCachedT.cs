@@ -53,6 +53,6 @@ public class ImprovementCached<TIndividual> : IImprovement<TIndividual>
 		}
 		return result!.Value;
 	}
-	public int GetHashCode(TIndividual individual, int tableBaseYear, DateOnly decrementDate) => _Improvement.GetHashCode(individual, tableBaseYear, decrementDate);
+	public int GetHashCode(TIndividual individual, int tableBaseYear, in DateOnly decrementDate) => _Improvement.GetHashCode(individual, tableBaseYear, decrementDate);
 	#endregion
 }

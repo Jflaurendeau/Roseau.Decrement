@@ -9,7 +9,7 @@ using Roseau.Mathematics;
 namespace Roseau.Decrement.UnitTests.Aggregates.Decrements.LifeTables;
 
 [TestClass]
-public class GenderedDecrementTest
+public class DecrementTTest
 {
 	private const int NUMBEROFYEARS = 115-17;
 	private static Mock<IDecrementTable<IGenderedIndividual>> Cpm2014TableMocked { get; } = new();
@@ -20,7 +20,7 @@ public class GenderedDecrementTest
 	private static DateOnly CalculationDate { get; } = new(2018, 1, 1);
 	private static decimal[][] SurvivalProbabilities { get; } = new decimal[2][];
 	private static decimal[][] DeathProbabilities { get; } = new decimal[2][];
-	private static GenderedDecrement Cpm2014 { get; }  = new GenderedDecrement(Cpm2014TableMocked.Object, ImprovementMocked.Object, AdjustmentMocked.Object);
+	private static Decrement<IGenderedIndividual> Cpm2014 { get; }  = new Decrement<IGenderedIndividual>(Cpm2014TableMocked.Object, ImprovementMocked.Object, AdjustmentMocked.Object);
 	private static DateOnly[] SurvivalDates { get; } = new DateOnly[NUMBEROFYEARS];
 
 	[ClassInitialize]
@@ -85,7 +85,7 @@ public class GenderedDecrementTest
 
 		// Act
 		// Assert
-		Assert.ThrowsException<ArgumentNullException>(() => new GenderedDecrement(null!));
+		Assert.ThrowsException<ArgumentNullException>(() => new Decrement<IGenderedIndividual>(null!));
 	}
 	[TestMethod]
 	[TestCategory(nameof(Cpm2014.SurvivalProbability))]
