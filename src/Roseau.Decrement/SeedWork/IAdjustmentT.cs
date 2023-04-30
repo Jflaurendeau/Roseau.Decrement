@@ -5,6 +5,6 @@ namespace Roseau.Decrement.SeedWork;
 
 public interface IAdjustment<in TIndividual> where TIndividual : IIndividual
 {
-	static IAdjustment<TIndividual> Default => new Adjustment<TIndividual>();
+	static IAdjustment<TIndividual> Default => Adjustment<TIndividual>.Default;
 	decimal AdjustmentFactor(TIndividual individual);
 }

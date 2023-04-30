@@ -29,7 +29,7 @@ public interface IDecrement
 	/// <param name="firstDate">First Date</param>
 	/// <param name="secondDate">Second Date</param>
 	/// <returns>Probability of survival</returns>
-	static public decimal SurvivalUniformDecrementDistribution(decimal decrementProbability, DateOnly firstDate, DateOnly secondDate) => 1 - UniformDecrementDistribution(decrementProbability, firstDate, secondDate);
+	static public decimal UniformSurvivalDistribution(decimal decrementProbability, DateOnly firstDate, DateOnly secondDate) => 1 - UniformDecrementDistribution(decrementProbability, firstDate, secondDate);
 	/// <summary>
 	/// Determine the death probability between two dates, where the survival probability is use a constant force of mortality.
 	/// </summary>
@@ -37,7 +37,7 @@ public interface IDecrement
 	/// <param name="firstDate">First Date</param>
 	/// <param name="secondDate">Second Date</param>
 	/// <returns>Probability of death</returns>
-	static public decimal ConstantForceDecrement(decimal decrementProbability, DateOnly firstDate, DateOnly secondDate) => 1 - SurvivalConstantForceDecrement(decrementProbability, firstDate, secondDate);
+	static public decimal ConstantForceDecrement(decimal decrementProbability, DateOnly firstDate, DateOnly secondDate) => 1 - ConstantForceSurvival(decrementProbability, firstDate, secondDate);
 	/// <summary>
 	/// Determine the Survival probability between two dates, where the survival probability is use a constant force of mortality.
 	/// </summary>
@@ -45,7 +45,7 @@ public interface IDecrement
 	/// <param name="firstDate">First Date</param>
 	/// <param name="secondDate">Second Date</param>
 	/// <returns>Probability of survival</returns>
-	static public decimal SurvivalConstantForceDecrement(decimal decrementProbability, DateOnly firstDate, DateOnly secondDate)
+	static public decimal ConstantForceSurvival(decimal decrementProbability, DateOnly firstDate, DateOnly secondDate)
 	{
 		if (secondDate < firstDate) throw new System.ArgumentException("firstDate must be before secondDate when using SurvivalConstantForceMortality method");
 		DateOnly endOfYearDate = new(firstDate.Year + 1, 1, 1);
