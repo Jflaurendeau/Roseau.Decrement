@@ -9,6 +9,8 @@ public sealed class Improvement<TIndividual> : IImprovement<TIndividual>
 {
 	private Improvement() { }
 	public static Improvement<TIndividual> Default { get; } = new();
+	public int FirstYear => 0;
 	public decimal ImprovementRate(TIndividual individual, int improvementAge, int improvementYear) => 1m;
 	public decimal ImprovementFactor(TIndividual individual, int tableBaseYear, DateOnly decrementDate) => 1m;
+	public int GetHashCode(TIndividual individual, int tableBaseYear, DateOnly decrementDate) => 1;
 }

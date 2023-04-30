@@ -60,5 +60,9 @@ public class GenderedImprovement : IImprovement<IGenderedIndividual>
 			return 1 / improvementFactor;
 		return improvementFactor;
 	}
+	public int GetHashCode(IGenderedIndividual individual, int tableBaseYear, DateOnly decrementDate)
+		=> HashCode.Combine(_Table, individual.Gender, _Table.AgeLimitedByScale(individual, decrementDate), decrementDate.Year);
+	public int FirstYear => _Table.FirstYear;
+
 	#endregion
 }
