@@ -11,9 +11,9 @@ public class Decrement<TIndividual> : IDecrement<TIndividual>
 	#region Fields
 	private const int TIMESPAN = 300;
 	protected readonly IDecrementTable<TIndividual> _Table;
-	private readonly IImprovement<TIndividual> _ImprovementScale;
-	private readonly IAdjustment<TIndividual> _Adjustment;
-	private readonly IMemoryCache _Cache;
+	protected readonly IImprovement<TIndividual> _ImprovementScale;
+	protected readonly IAdjustment<TIndividual> _Adjustment;
+	protected readonly IMemoryCache _Cache;
 	#endregion
 
 	#region Constructors
@@ -35,30 +35,24 @@ public class Decrement<TIndividual> : IDecrement<TIndividual>
 	protected delegate decimal DecrementOrSurvivalProbabilityIn(TIndividual individual, in DateOnly calculationDate, in DateOnly decrementDate);
 
 	#region private methods
-	private static MemoryCacheEntryOptions GetMemoryCacheEntryOptions() => new MemoryCacheEntryOptions().SetSize(1)
+	protected static MemoryCacheEntryOptions GetMemoryCacheEntryOptions() => new MemoryCacheEntryOptions().SetSize(1)
 																								 .SetSlidingExpiration(TimeSpan.FromSeconds(TIMESPAN))
 																								 .SetPriority(CacheItemPriority.Low);
-	private decimal SurvivalBetweenIntegerAge(TIndividual individual, in DateOnly firstDate, in DateOnly secondDate)
+	protected decimal DecrementRate(TIndividual individual, in DateOnly firstDate)
 	{
 		decimal deathProbability = _Table.GetRate(individual, firstDate);
 		if (deathProbability.Equals(Decimal.One))
-			return 1 - IDecrement.UniformDecrementDistribution(1, firstDate, secondDate);
+			return deathProbability;
 		decimal improvementFactor = _ImprovementScale.ImprovementFactor(individual, _Table.BaseYear, firstDate);
 		decimal adjustmentFactor = _Adjustment.AdjustmentFactor(individual);
 
-		return 1 - IDecrement.UniformDecrementDistribution(adjustmentFactor * deathProbability * improvementFactor, firstDate, secondDate);
+		return adjustmentFactor * deathProbability * improvementFactor;
 	}
-	private decimal YearlySurvival(TIndividual individual, in DateOnly decrementDate)
-	{
-		decimal deathProbability = _Table.GetRate(individual, decrementDate);
-		if (deathProbability.Equals(Decimal.One))
-			return 0m;
-
-		decimal improvementFactor = _ImprovementScale.ImprovementFactor(individual, _Table.BaseYear, decrementDate);
-		decimal adjustmentFactor = _Adjustment.AdjustmentFactor(individual);
-		return 1 - deathProbability * improvementFactor * adjustmentFactor;
-	}
-	private decimal GetSurvivalProbability(TIndividual individual, in DateOnly calculationDate, in DateOnly decrementDate)
+	private decimal SurvivalBetweenIntegerAge(TIndividual individual, in DateOnly firstDate, in DateOnly secondDate)
+		=> 1 - IDecrement.UniformDecrementDistribution(DecrementRate(individual, firstDate), firstDate, secondDate);
+	protected decimal YearlySurvival(TIndividual individual, in DateOnly decrementDate)
+		=> 1 - DecrementRate(individual, decrementDate);
+	protected decimal GetSurvivalProbability(TIndividual individual, in DateOnly calculationDate, in DateOnly decrementDate)
 	{
 		int decrementYear = decrementDate.Year;
 		if (calculationDate.Year == decrementYear)
@@ -74,8 +68,8 @@ public class Decrement<TIndividual> : IDecrement<TIndividual>
 		survivalProbability *= SurvivalBetweenIntegerAge(individual, nextDate, decrementDate);
 		return survivalProbability;
 	}
-	private decimal GetDecrementProbability(TIndividual individual, in DateOnly calculationDate, in DateOnly decrementDate) => 1 - GetSurvivalProbability(individual, calculationDate, decrementDate);
-	private decimal GetProbability(TIndividual individual, in DateOnly calculationDate, in DateOnly decrementDate, DecrementOrSurvivalProbabilityIn decrementOrSurvivalProbability)
+	protected decimal GetDecrementProbability(TIndividual individual, in DateOnly calculationDate, in DateOnly decrementDate) => 1 - GetSurvivalProbability(individual, calculationDate, decrementDate);
+	protected decimal GetProbability(TIndividual individual, in DateOnly calculationDate, in DateOnly decrementDate, DecrementOrSurvivalProbabilityIn decrementOrSurvivalProbability)
 	{
 		if (calculationDate > decrementDate) throw new ArgumentException($"{nameof(calculationDate)} must be before {nameof(decrementDate)}");
 		if (individual.DateOfBirth > calculationDate) throw new ArgumentException($"{nameof(individual.DateOfBirth)} must be before {nameof(calculationDate)}");
@@ -85,7 +79,7 @@ public class Decrement<TIndividual> : IDecrement<TIndividual>
 			return 0m;
 		return 1m;
 	}
-	private decimal[] GetProbabilities(TIndividual individual, in DateOnly calculationDate, OrderedDates dates, DecrementOrSurvivalProbabilityIn decrementOrSurvivalProbability)
+	protected decimal[] GetProbabilities(TIndividual individual, in DateOnly calculationDate, OrderedDates dates, DecrementOrSurvivalProbabilityIn decrementOrSurvivalProbability)
 	{
 		int key = GetHashCode(individual, calculationDate, dates, decrementOrSurvivalProbability);
 		if (!_Cache.TryGetValue(key, out decimal[]? result))
@@ -118,7 +112,7 @@ public class Decrement<TIndividual> : IDecrement<TIndividual>
 		}
 		return probabilities;
 	}
-	protected virtual int GetHashCode(TIndividual individual, in DateOnly calculationDate, OrderedDates dates, DecrementOrSurvivalProbabilityIn decrementOrSurvivalProbability) => HashCode.Combine(_Table, individual, calculationDate, dates, decrementOrSurvivalProbability);
+	private int GetHashCode(TIndividual individual, in DateOnly calculationDate, OrderedDates dates, DecrementOrSurvivalProbabilityIn decrementOrSurvivalProbability) => HashCode.Combine(_Table, individual, calculationDate, dates, decrementOrSurvivalProbability);
 	#endregion
 
 	public decimal SurvivalProbability(TIndividual individual, in DateOnly calculationDate, in DateOnly decrementDate)
