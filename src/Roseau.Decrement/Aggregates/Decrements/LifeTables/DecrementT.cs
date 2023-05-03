@@ -112,7 +112,7 @@ public class Decrement<TIndividual> : IDecrement<TIndividual>
 		}
 		return probabilities;
 	}
-	private int GetHashCode(TIndividual individual, in DateOnly calculationDate, OrderedDates dates, DecrementOrSurvivalProbabilityIn decrementOrSurvivalProbability) => HashCode.Combine(_Table, individual, calculationDate, dates, decrementOrSurvivalProbability);
+	protected virtual int GetHashCode(TIndividual individual, in DateOnly calculationDate, OrderedDates dates, DecrementOrSurvivalProbabilityIn decrementOrSurvivalProbability) => HashCode.Combine(_Table, individual, calculationDate, dates, decrementOrSurvivalProbability);
 	#endregion
 
 	public decimal SurvivalProbability(TIndividual individual, in DateOnly calculationDate, in DateOnly decrementDate)

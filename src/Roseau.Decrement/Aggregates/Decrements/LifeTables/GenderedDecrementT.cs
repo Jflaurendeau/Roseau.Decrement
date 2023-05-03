@@ -18,8 +18,10 @@ public class GenderedDecrement<TGenderedIndividual> : Decrement<TGenderedIndivid
 	#endregion
 
 	private delegate decimal DecrementOrSurvivalUnisexProbabilityIn(TGenderedIndividual manIndividual, TGenderedIndividual womanIndividual, in DateOnly calculationDate, in DateOnly decrementDate, in decimal manProportion);
+	#region Private and protected methods
+	protected override int GetHashCode(TGenderedIndividual individual, in DateOnly calculationDate, OrderedDates dates, DecrementOrSurvivalProbabilityIn decrementOrSurvivalProbability) => HashCode.Combine(_Table, individual.Gender, individual.DateOfBirth, calculationDate, dates, decrementOrSurvivalProbability);
 
-	#region Private methods
+
 	private int GetHashCode(TGenderedIndividual individual, in DateOnly calculationDate, OrderedDates dates, DecrementOrSurvivalUnisexProbabilityIn decrementOrSurvivalProbability, in decimal manProportion) => HashCode.Combine(_Table, individual.DateOfBirth, calculationDate, dates, decrementOrSurvivalProbability, manProportion);
 	private decimal SurvivalUnisexBetweenIntegerAge(TGenderedIndividual manIndividual, TGenderedIndividual womanIndividual, in DateOnly firstDate, in DateOnly secondDate, in decimal manProportion)
 	{

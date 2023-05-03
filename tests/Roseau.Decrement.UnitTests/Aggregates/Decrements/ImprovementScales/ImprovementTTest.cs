@@ -77,7 +77,7 @@ public class ImprovementTTest
 
 		// Act
 		// Assert
-		Assert.ThrowsException<ArgumentNullException>(() => new GenderedImprovement(null!));
+		Assert.ThrowsException<ArgumentNullException>(() => new GenderedImprovement<IGenderedIndividual>(null!));
 	}
 	[TestMethod]
 	[TestCategory(nameof(GenderedImprovement.ImprovementRate))]
