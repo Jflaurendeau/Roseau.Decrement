@@ -1,1 +1,9 @@
+﻿[![Continuous Integration ♾️⬇️](https://github.com/Jflaurendeau/Roseau.Decrement/actions/workflows/continuous-integration.yaml/badge.svg)](https://github.com/Jflaurendeau/Roseau.Decrement/actions/workflows/continuous-integration.yaml)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=Jflaurendeau_Roseau.Decrement&metric=coverage)](https://sonarcloud.io/summary/new_code?id=Jflaurendeau_Roseau.Decrement)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Jflaurendeau_Roseau.Decrement&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=Jflaurendeau_Roseau.Decrement)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=Jflaurendeau_Roseau.Decrement&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=Jflaurendeau_Roseau.Decrement)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=Jflaurendeau_Roseau.Decrement&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=Jflaurendeau_Roseau.Decrement)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=Jflaurendeau_Roseau.Decrement&metric=bugs)](https://sonarcloud.io/summary/new_code?id=Jflaurendeau_Roseau.Decrement)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=Jflaurendeau_Roseau.Decrement&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=Jflaurendeau_Roseau.Decrement)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=Jflaurendeau_Roseau.Decrement&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=Jflaurendeau_Roseau.Decrement)
 # Roseau.Decrement
