@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Roseau.Decrement", "src\Ros
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Roseau.Decrement.UnitTests", "tests\Roseau.Decrement.UnitTests\Roseau.Decrement.UnitTests.csproj", "{6D43B7F7-5BD5-49E3-BA54-ACA6C76FCE6A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Roseau.Decrement.Benchmark", "tests\Roseau.Decrement.Benchmark\Roseau.Decrement.Benchmark.csproj", "{C68C0E3C-13D1-4415-A372-4D3C7E4E08FE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Roseau.Decrement.Benchmark", "tests\Roseau.Decrement.Benchmark\Roseau.Decrement.Benchmark.csproj", "{C68C0E3C-13D1-4415-A372-4D3C7E4E08FE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

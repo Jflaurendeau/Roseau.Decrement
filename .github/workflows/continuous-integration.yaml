@@ -43,9 +43,11 @@ jobs:
       - name: Restore packages and dependencies 📥📦
         run: |
              dotnet tool install coverlet.console -g
-             dotnet restore
+             dotnet restore ./src/Roseau.Decrement/Roseau.Decrement.csproj
+             dotnet restore ./tests/Roseau.Decrement.UnitTests/Roseau.Decrement.UnitTests.csproj
       - name: Build For Release 👷‍♀🏗️
-        run: dotnet build -c Release --no-restore
+        run: dotnet build ./src/Roseau.Decrement/Roseau.Decrement.csproj -c Release --no-restore
+             dotnet restore ./tests/Roseau.Decrement.UnitTests/Roseau.Decrement.UnitTests.csproj -c Release --no-restore
 
       - name: Run tests 🩺🔬🧑‍🔬
         run: dotnet test -c Release --no-restore
@@ -84,7 +86,7 @@ jobs:
         shell: powershell
         run: |
              .\.sonar\scanner\dotnet-sonarscanner begin /k:"Jflaurendeau_Roseau.Decrement" /o:"jflaurendeau" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths=".\tests\Roseau.Decrement.UnitTests\TestResults\coverage.xml"
-             dotnet build
+             dotnet build .\src\Roseau.Decrement\Roseau.Decrement.csproj
              coverlet .\tests\Roseau.Decrement.UnitTests\bin\Debug\net7.0\Roseau.Decrement.UnitTests.dll --target "dotnet" --targetargs "test --no-build --no-restore" -f=opencover -o=".\tests\Roseau.Decrement.UnitTests\TestResults\coverage.xml"
              .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
   Semantic-versioning:
