@@ -51,7 +51,7 @@ jobs:
              dotnet build ./tests/Roseau.Decrement.UnitTests/Roseau.Decrement.UnitTests.csproj -c Release --no-restore
 
       - name: Run tests 🩺🔬🧑‍🔬
-        run: dotnet test -c Release --no-restore
+        run: dotnet test ./tests/Roseau.Decrement.UnitTests/Roseau.Decrement.UnitTests.csproj -c Release --no-restore
 
       - name: Set up JDK 11 (For SonarCloud) ⚒️
         uses: actions/setup-java@v3
