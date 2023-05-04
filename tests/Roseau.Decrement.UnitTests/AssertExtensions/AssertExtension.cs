@@ -2,7 +2,7 @@
 
 public static class AssertExtension
 {
-	public static void DoesNotThrow(this Assert assert, Func<object?> action)
+	public static void DoesNotThrow(this Assert _, Func<object?> action)
 	{
 		try
 		{
@@ -15,4 +15,4 @@ public static class AssertExtension
 		}
 	}
 }
-}
+
