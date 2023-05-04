@@ -1,8 +1,8 @@
 ﻿using Moq;
 using Roseau.Decrement.Aggregates.Decrements.ImprovementScales;
-using Roseau.Decrement.Aggregates.Decrements.LifeTables;
 using Roseau.Decrement.Aggregates.Individuals;
 using Roseau.Decrement.SeedWork;
+using Roseau.Decrement.UnitTests.AssertExtensions;
 
 namespace Roseau.Decrement.UnitTests.Aggregates.Decrements.ImprovementScales;
 
@@ -86,7 +86,7 @@ public class ImprovementTTest
 		// Arrange
 		// Act
 		// Assert
-		GenderedImprovement.ImprovementRate(ManIndividualMocked.Object, 18, 1999);
+		Assert.That.DoesNotThrow(() => GenderedImprovement.ImprovementRate(ManIndividualMocked.Object, 18, 1999));
 	}
 	[TestMethod]
 	[TestCategory(nameof(GenderedImprovement.ImprovementRate))]
@@ -130,7 +130,7 @@ public class ImprovementTTest
 
 		// Act
 		// Assert
-		GenderedImprovement.ImprovementFactor(ManIndividualMocked.Object, CalculationDate.Year, CalculationDate.AddYears(-15));
+		Assert.That.DoesNotThrow(() => GenderedImprovement.ImprovementFactor(ManIndividualMocked.Object, CalculationDate.Year, CalculationDate.AddYears(-15)));
 	}
 	[TestMethod]
 	[TestCategory(nameof(GenderedImprovement.ImprovementFactor))]
@@ -150,7 +150,7 @@ public class ImprovementTTest
 
 		// Act
 		// Assert
-		GenderedImprovement.ImprovementFactor(ManIndividualMocked.Object, CalculationDate.AddYears(-15).Year, CalculationDate);
+		Assert.That.DoesNotThrow(() => GenderedImprovement.ImprovementFactor(ManIndividualMocked.Object, CalculationDate.AddYears(-15).Year, CalculationDate));
 	}
 	[TestMethod]
 	[TestCategory(nameof(GenderedImprovement.ImprovementFactor))]

@@ -88,7 +88,6 @@ jobs:
         run: |
              .\.sonar\scanner\dotnet-sonarscanner begin /k:"Jflaurendeau_Roseau.Decrement" /o:"jflaurendeau" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths=".\tests\Roseau.Decrement.UnitTests\TestResults\coverage.xml"
              dotnet build .\src\Roseau.Decrement\Roseau.Decrement.csproj
-             dotnet build .\tests\Roseau.Decrement.UnitTests\Roseau.Decrement.UnitTests.csproj
              coverlet .\tests\Roseau.Decrement.UnitTests\bin\Debug\net7.0\Roseau.Decrement.UnitTests.dll --target "dotnet" --targetargs "test --no-build --no-restore" -f=opencover -o=".\tests\Roseau.Decrement.UnitTests\TestResults\coverage.xml"
              .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
   Semantic-versioning:
