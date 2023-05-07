@@ -6,7 +6,7 @@ using Roseau.Decrement.SeedWork;
 
 namespace Roseau.Decrement.Aggregates.Decrements.LifeTables;
 
-public class GenderedDecrement<TGenderedIndividual> : Decrement<TGenderedIndividual>, IUnisexDecrementT<TGenderedIndividual>
+public class GenderedDecrement<TGenderedIndividual> : Decrement<TGenderedIndividual>, IUnisexDecrement<TGenderedIndividual>
 	where TGenderedIndividual : IGenderedIndividual
 {
 	#region Constructors
@@ -33,7 +33,7 @@ public class GenderedDecrement<TGenderedIndividual> : Decrement<TGenderedIndivid
 	{
 		decimal manDecrement = DecrementRate(manIndividual, decrementDate);
 		decimal womanDecrement = DecrementRate(womanIndividual, decrementDate);
-		return 1 - manDecrement * manProportion + (1 - manProportion) * womanDecrement;
+		return 1 - (manDecrement * manProportion + (1 - manProportion) * womanDecrement);
 	}
 	private decimal GetSurvivalUnisexProbability(TGenderedIndividual manIndividual, TGenderedIndividual womanIndividual, in DateOnly calculationDate, in DateOnly decrementDate, in decimal manProportion)
 	{
@@ -58,9 +58,7 @@ public class GenderedDecrement<TGenderedIndividual> : Decrement<TGenderedIndivid
 		if (manIndividual.DateOfBirth > calculationDate) throw new ArgumentException($"{nameof(manIndividual.DateOfBirth)} must be before {nameof(calculationDate)}");
 		if (!_Table.IsOlderThanLastAgeOfTheTable(manIndividual, decrementDate))
 			return decrementOrSurvivalProbability(manIndividual, womanIndividual, calculationDate, decrementDate, manProportion);
-		if (decrementOrSurvivalProbability == GetSurvivalUnisexProbability)
-			return 0m;
-		return 1m;
+		return 0m;
 	}
 	private decimal[] GetUnisexProbabilities(TGenderedIndividual manIndividual, TGenderedIndividual womanIndividual, in DateOnly calculationDate, OrderedDates dates, DecrementOrSurvivalUnisexProbabilityIn decrementOrSurvivalProbability, in decimal manProportion)
 	{

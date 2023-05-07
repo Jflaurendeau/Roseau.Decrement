@@ -41,9 +41,9 @@ public class ImprovementCached<TIndividual> : IImprovement<TIndividual>
 		if (individual.DateOfBirth > decrementDate)
 			throw new ArgumentOutOfRangeException(nameof(decrementDate), $"The decrement date ({decrementDate}) can not be before the date of birth.");
 		if (decrementYear < FirstYear - 1)
-			throw new ArgumentOutOfRangeException(nameof(decrementDate), $"The date of calculation ({decrementDate}) can not be before 1999-01-01.");
+			throw new ArgumentOutOfRangeException(nameof(decrementDate), $"The date of calculation ({decrementDate}) can not be more than a year before Improvement Scale's First Year({FirstYear}).");
 		if (tableBaseYear < FirstYear - 1)
-			throw new ArgumentOutOfRangeException(nameof(tableBaseYear), $"The base year of the underlying mortality base table ({tableBaseYear}) can not be before 1999.");
+			throw new ArgumentOutOfRangeException(nameof(tableBaseYear), $"The base year of the underlying mortality base table ({tableBaseYear}) can not be more than a year before Improvement Scale's First Year({FirstYear}).");
 		if (decrementYear == tableBaseYear) return 1m;
 		int key = GetHashCode(individual, tableBaseYear, decrementDate);
 		if (!_MemoryCache.TryGetValue(key, out decimal? result))

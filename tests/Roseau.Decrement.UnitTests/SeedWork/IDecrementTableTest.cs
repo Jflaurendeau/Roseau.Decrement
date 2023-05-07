@@ -71,12 +71,28 @@ public class IDecrementTableTest
 	}
 	[TestMethod]
 	[TestCategory(nameof(IDecrementTable<IIndividual>.LastPossibleDecrementDate))]
-	public void LastPossibleDecrementDate_ReturnTheOnlyPossibleDecrementDate()
+	public void LastPossibleDecrementDate_DateOfBirthFirstHalfOfYear_ReturnTheOnlyPossibleDecrementDate()
 	{
 		// Arrange
 		int ageFirstOfFollowingYear = IndividualMocked.Object.DateOfBirth.AgeNearestBirthday(IndividualMocked.Object.DateOfBirth.FirstDayOfFollowingYear());
 		// Act
 		// Assert
 		Assert.AreEqual(IndividualMocked.Object.DateOfBirth.FirstDayOfFollowingYear().AddYears(DecrementTableMocked.Object.LastAge-1+ageFirstOfFollowingYear), DecrementTableMocked.Object.LastPossibleDecrementDate(IndividualMocked.Object));
+	}
+	[TestMethod]
+	[TestCategory(nameof(IDecrementTable<IIndividual>.LastPossibleDecrementDate))]
+	public void LastPossibleDecrementDate_DateOfBirthSecondHalfOfYear_ReturnTheOnlyPossibleDecrementDate()
+	{
+		// Arrange
+		Mock<IIndividual> individualMocked = new();
+		individualMocked.Setup(x => x.DateOfBirth)
+			.Returns(new DateOnly(2000, 10, 15));
+		int ageFirstOfFollowingYear = individualMocked.Object.DateOfBirth.AgeNearestBirthday(individualMocked.Object.DateOfBirth.FirstDayOfFollowingYear());
+		DateOnly roundedDateOfBirth = ageFirstOfFollowingYear == 0
+			? individualMocked.Object.DateOfBirth.FirstDayOfFollowingYear()
+			: individualMocked.Object.DateOfBirth.FirstDayOfTheYear();
+		// Act
+		// Assert
+		Assert.AreEqual(roundedDateOfBirth.AddYears(DecrementTableMocked.Object.LastAge + 1), DecrementTableMocked.Object.LastPossibleDecrementDate(individualMocked.Object));
 	}
 }

@@ -80,6 +80,26 @@ public class ImprovementTTest
 		Assert.ThrowsException<ArgumentNullException>(() => new GenderedImprovement<IGenderedIndividual>(null!));
 	}
 	[TestMethod]
+	[TestCategory("Constructors")]
+	public void Constructor_WithTableOnly_AdjustmentFactorIsDefault()
+	{
+		// Arrange
+		var improvement = new GenderedImprovement<IGenderedIndividual>(ImprovementTableMocked.Object);
+		// Act
+		// Assert
+		Assert.AreEqual(ImprovementRates[0][0], improvement.ImprovementRate(ManIndividualMocked.Object, 0, ImprovementTableMocked.Object.FirstYear));
+	}
+	[TestMethod]
+	[TestCategory(nameof(GenderedImprovement.GetHashCode))]
+	public void GetHashCode_EqualsToSpeceficFeature()
+	{
+		// Arrange
+		int hashCode = HashCode.Combine(ImprovementTableMocked.Object, AdjustmentMocked.Object, ManIndividualMocked.Object, ImprovementTableMocked.Object.AgeLimitedByScale(ManIndividualMocked.Object, CalculationDate), CalculationDate.Year);
+		// Act
+		// Assert
+		Assert.AreEqual(hashCode, GenderedImprovement.GetHashCode(ManIndividualMocked.Object, 2020, CalculationDate));
+	}
+	[TestMethod]
 	[TestCategory(nameof(GenderedImprovement.ImprovementRate))]
 	public void ImprovementRate_ImprovementYearIsExactlyOneYearBeforeFirstYearOfTheTable_DoesNotThrow()
 	{

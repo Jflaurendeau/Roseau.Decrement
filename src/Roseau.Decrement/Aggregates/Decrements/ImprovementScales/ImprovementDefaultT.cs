@@ -10,7 +10,7 @@ public sealed class ImprovementDefault<TIndividual> : IImprovement<TIndividual>
 	private ImprovementDefault() { }
 	public static ImprovementDefault<TIndividual> Default { get; } = new();
 	public int FirstYear => 0;
-	public decimal ImprovementRate(TIndividual individual, int improvementAge, int improvementYear) => 1m;
+	public decimal ImprovementRate(TIndividual individual, int improvementAge, int improvementYear) => 0m;
 	public decimal ImprovementFactor(TIndividual individual, int tableBaseYear, DateOnly decrementDate) => 1m;
 	public int GetHashCode(TIndividual individual, int tableBaseYear, in DateOnly decrementDate) => 1;
 }

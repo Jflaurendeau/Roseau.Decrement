@@ -3,7 +3,7 @@ using Roseau.Decrement.Aggregates.Individuals;
 
 namespace Roseau.Decrement.SeedWork;
 
-public interface IUnisexDecrementT<in TGenderedIndividual> : IDecrement<TGenderedIndividual>
+public interface IUnisexDecrement<in TGenderedIndividual> : IDecrement<TGenderedIndividual>
 	where TGenderedIndividual : IGenderedIndividual
 {
 	decimal SurvivalUnisexProbability(TGenderedIndividual individual, in DateOnly calculationDate, in DateOnly decrementDate, decimal manProportion);

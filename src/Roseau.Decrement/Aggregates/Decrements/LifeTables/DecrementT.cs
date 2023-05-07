@@ -75,9 +75,7 @@ public class Decrement<TIndividual> : IDecrement<TIndividual>
 		if (individual.DateOfBirth > calculationDate) throw new ArgumentException($"{nameof(individual.DateOfBirth)} must be before {nameof(calculationDate)}");
 		if (!_Table.IsOlderThanLastAgeOfTheTable(individual, decrementDate))
 			return decrementOrSurvivalProbability(individual, calculationDate, decrementDate);
-		if (decrementOrSurvivalProbability == GetSurvivalProbability)
-			return 0m;
-		return 1m;
+		return 0m;
 	}
 	protected decimal[] GetProbabilities(TIndividual individual, in DateOnly calculationDate, OrderedDates dates, DecrementOrSurvivalProbabilityIn decrementOrSurvivalProbability)
 	{
