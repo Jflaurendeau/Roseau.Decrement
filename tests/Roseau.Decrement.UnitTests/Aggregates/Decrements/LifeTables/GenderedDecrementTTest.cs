@@ -646,7 +646,7 @@ public class GenderedDecrementTTest
 		var newDecrement = new GenderedDecrement<IGenderedIndividual>(DecrementTableMocked.Object, ImprovementMocked.Object, AdjustmentMocked.Object);
 
 		// Act
-		var actualDecrementProbabilities = newDecrement.DecrementUnisexProbabilities(ManIndividualMocked.Object, calculationDate, decrementDates, MANPROPORTION);
+		var actualDecrementProbabilities = newDecrement.DecrementUnisexProbabilities(WomanIndividualMocked.Object, calculationDate, decrementDates, MANPROPORTION);
 		var expectedSurvivalUnisexProbabilities = newDecrement.SurvivalUnisexProbabilities(WomanIndividualMocked.Object, calculationDate, decrementDates, MANPROPORTION);
 		for (int i = 0; i < decrementDates.Count; i++)
 			expectedDecrementProbabilities[i] = 1 - expectedSurvivalUnisexProbabilities[i];
