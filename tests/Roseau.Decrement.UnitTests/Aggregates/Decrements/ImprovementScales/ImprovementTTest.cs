@@ -77,14 +77,14 @@ public class ImprovementTTest
 
 		// Act
 		// Assert
-		Assert.ThrowsException<ArgumentNullException>(() => new GenderedImprovement<IGenderedIndividual>(null!));
+		Assert.ThrowsException<ArgumentNullException>(() => new Improvement<IGenderedIndividual>(null!));
 	}
 	[TestMethod]
 	[TestCategory("Constructors")]
 	public void Constructor_WithTableOnly_AdjustmentFactorIsDefault()
 	{
 		// Arrange
-		var improvement = new GenderedImprovement<IGenderedIndividual>(ImprovementTableMocked.Object);
+		var improvement = new Improvement<IGenderedIndividual>(ImprovementTableMocked.Object);
 		// Act
 		// Assert
 		Assert.AreEqual(ImprovementRates[0][0], improvement.ImprovementRate(ManIndividualMocked.Object, 0, ImprovementTableMocked.Object.FirstYear));

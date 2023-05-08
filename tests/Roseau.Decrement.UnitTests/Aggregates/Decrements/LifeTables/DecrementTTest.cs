@@ -210,7 +210,7 @@ public class DecrementTTest
 		// Arrange
 		DateOnly calculationDate = CalculationDate.AddDays(56);
 		IDateArrayStrategy dateArrayStrategy = new FirstDayOfEveryMonthStrategy();
-		OrderedDates decrementDates = new(dateArrayStrategy, calculationDate, calculationDate.AddYears(100));
+		OrderedDates decrementDates = new(dateArrayStrategy, calculationDate, calculationDate.AddYears(2));
 
 		// Act
 
@@ -224,7 +224,7 @@ public class DecrementTTest
 		// Arrange
 		DateOnly calculationDate = ManIndividualMocked.Object.DateOfBirth.AddDays(-1);
 		IDateArrayStrategy dateArrayStrategy = new FirstDayOfEveryMonthStrategy();
-		OrderedDates decrementDates = new(dateArrayStrategy, calculationDate, calculationDate.AddYears(100));
+		OrderedDates decrementDates = new(dateArrayStrategy, calculationDate, calculationDate.AddYears(2));
 
 		// Act
 
@@ -238,7 +238,7 @@ public class DecrementTTest
 		// Arrange
 		DateOnly calculationDate = CalculationDate.AddDays(57);
 		IDateArrayStrategy dateArrayStrategy = new FirstDayOfEveryMonthStrategy();
-		OrderedDates decrementDates = new(dateArrayStrategy, calculationDate, calculationDate.AddYears(100));
+		OrderedDates decrementDates = new(dateArrayStrategy, calculationDate, calculationDate.AddYears(2));
 		decimal[] expectedSurvivalProbabilities = new decimal[decrementDates.Count];
 		for (int i = 0; i < decrementDates.Count; i++)
 		{
@@ -267,7 +267,7 @@ public class DecrementTTest
 		// Arrange
 		DateOnly calculationDate = CalculationDate.AddDays(56);
 		IDateArrayStrategy dateArrayStrategy = new FirstDayOfEveryMonthStrategy();
-		OrderedDates decrementDates = new(dateArrayStrategy, calculationDate, calculationDate.AddYears(100));
+		OrderedDates decrementDates = new(dateArrayStrategy, calculationDate, calculationDate.AddYears(2));
 
 
 		// Act
@@ -284,13 +284,14 @@ public class DecrementTTest
 		// Arrange
 		DateOnly calculationDate = CalculationDate.AddDays(56);
 		IDateArrayStrategy dateArrayStrategy = new FirstDayOfEveryMonthStrategy();
-		OrderedDates decrementDates = new(dateArrayStrategy, calculationDate, calculationDate.AddYears(100));
+		OrderedDates decrementDates = new(dateArrayStrategy, calculationDate, calculationDate.AddYears(2));
 		decimal[] expectedDecrementProbabilities = new decimal[decrementDates.Count];
+		var newDecrement = new Decrement<IGenderedIndividual>(DecrementTableMocked.Object, ImprovementMocked.Object, AdjustmentMocked.Object);
 
 
 		// Act
-		var actualDecrementProbabilities = Decrement.DecrementProbabilities(ManIndividualMocked.Object, calculationDate, decrementDates);
-		var expectedSurvivalProbabilities = Decrement.SurvivalProbabilities(ManIndividualMocked.Object, calculationDate, decrementDates);
+		var actualDecrementProbabilities = newDecrement.DecrementProbabilities(ManIndividualMocked.Object, calculationDate, decrementDates);
+		var expectedSurvivalProbabilities = newDecrement.SurvivalProbabilities(ManIndividualMocked.Object, calculationDate, decrementDates);
 		for (int i = 0; i < decrementDates.Count; i++)
 			expectedDecrementProbabilities[i] = 1 - expectedSurvivalProbabilities[i];
 

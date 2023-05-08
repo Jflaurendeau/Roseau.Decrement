@@ -102,7 +102,7 @@ public class GenderedDecrementTTest
 
 		// Act
 		// Assert
-		Assert.That.DoesNotThrow(() => new Decrement<IGenderedIndividual>(DecrementTableMocked.Object, ImprovementMocked.Object));
+		Assert.That.DoesNotThrow(() => new GenderedDecrement<IGenderedIndividual>(DecrementTableMocked.Object, ImprovementMocked.Object));
 	}
 	[TestMethod]
 	[TestCategory("Constructors")]
@@ -156,7 +156,19 @@ public class GenderedDecrementTTest
 	}
 	[TestMethod]
 	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual>.SurvivalUnisexProbability))]
-	public void SurvivalUnisexProbability_ManProportionIsExactlyOne_EqualsManSurvivalProbability()
+	public void SurvivalUnisexProbability_Man_ManProportionIsExactlyOne_EqualsManSurvivalProbability()
+	{
+		// Arrange
+
+		// Act
+		var expectedSurvivalUnisexProbability = Decrement.SurvivalProbability(ManIndividualMocked.Object, CalculationDate.AddYears(2), CalculationDate.AddYears(3));
+		var actualSurvivalUnisexProbability = Decrement.SurvivalUnisexProbability(ManIndividualMocked.Object, CalculationDate.AddYears(2), CalculationDate.AddYears(3), 1);
+		// Assert
+		Assert.AreEqual(expectedSurvivalUnisexProbability, actualSurvivalUnisexProbability);
+	}
+	[TestMethod]
+	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual>.SurvivalUnisexProbability))]
+	public void SurvivalUnisexProbability_Woman_ManProportionIsExactlyOne_EqualsManSurvivalProbability()
 	{
 		// Arrange
 
@@ -168,13 +180,25 @@ public class GenderedDecrementTTest
 	}
 	[TestMethod]
 	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual>.SurvivalUnisexProbability))]
-	public void SurvivalUnisexProbability_ManProportionIsExactlyZero_EqualsWomanSurvivalProbability()
+	public void SurvivalUnisexProbability_Man_ManProportionIsExactlyZero_EqualsWomanSurvivalProbability()
 	{
 		// Arrange
 
 		// Act
 		var expectedSurvivalUnisexProbability = Decrement.SurvivalProbability(WomanIndividualMocked.Object, CalculationDate.AddYears(2), CalculationDate.AddYears(3));
 		var actualSurvivalUnisexProbability = Decrement.SurvivalUnisexProbability(ManIndividualMocked.Object, CalculationDate.AddYears(2), CalculationDate.AddYears(3), 0);
+		// Assert
+		Assert.AreEqual(expectedSurvivalUnisexProbability, actualSurvivalUnisexProbability);
+	}
+	[TestMethod]
+	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual>.SurvivalUnisexProbability))]
+	public void SurvivalUnisexProbability_Woman_ManProportionIsExactlyZero_EqualsWomanSurvivalProbability()
+	{
+		// Arrange
+
+		// Act
+		var expectedSurvivalUnisexProbability = Decrement.SurvivalProbability(WomanIndividualMocked.Object, CalculationDate.AddYears(2), CalculationDate.AddYears(3));
+		var actualSurvivalUnisexProbability = Decrement.SurvivalUnisexProbability(WomanIndividualMocked.Object, CalculationDate.AddYears(2), CalculationDate.AddYears(3), 0);
 		// Assert
 		Assert.AreEqual(expectedSurvivalUnisexProbability, actualSurvivalUnisexProbability);
 	}
@@ -218,7 +242,7 @@ public class GenderedDecrementTTest
 
 		// Act
 		var expectedSurvivalUnisexProbability = 1 - MANPROPORTION * (DeathProbabilities[(int)ManIndividualMocked.Object.Gender][0] + DeathProbabilities[(int)WomanIndividualMocked.Object.Gender][0]);
-		var actualSurvivalUnisexProbability = Decrement.SurvivalUnisexProbability(ManIndividualMocked.Object, CalculationDate.AddYears(-1), CalculationDate, MANPROPORTION);
+		var actualSurvivalUnisexProbability = Decrement.SurvivalUnisexProbability(WomanIndividualMocked.Object, CalculationDate.AddYears(-1), CalculationDate, MANPROPORTION);
 		// Assert
 		Assert.AreEqual(expectedSurvivalUnisexProbability, actualSurvivalUnisexProbability);
 	}
@@ -283,7 +307,7 @@ public class GenderedDecrementTTest
 		// Arrange
 		DateOnly calculationDate = CalculationDate.AddDays(56);
 		IDateArrayStrategy dateArrayStrategy = new FirstDayOfEveryMonthStrategy();
-		OrderedDates decrementDates = new(dateArrayStrategy, calculationDate, calculationDate.AddYears(100));
+		OrderedDates decrementDates = new(dateArrayStrategy, calculationDate, calculationDate.AddYears(2));
 
 
 		// Act
@@ -300,7 +324,7 @@ public class GenderedDecrementTTest
 		// Arrange
 		DateOnly calculationDate = CalculationDate.AddDays(56);
 		IDateArrayStrategy dateArrayStrategy = new FirstDayOfEveryMonthStrategy();
-		OrderedDates decrementDates = new(dateArrayStrategy, calculationDate, calculationDate.AddYears(100));
+		OrderedDates decrementDates = new(dateArrayStrategy, calculationDate, calculationDate.AddYears(2));
 
 
 		// Act
@@ -312,12 +336,29 @@ public class GenderedDecrementTTest
 	}
 	[TestMethod]
 	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual>.SurvivalUnisexProbabilities))]
-	public void SurvivalUnisexProbabilities_ManProportionIsExactlyOne_ReturnsManProbabilities()
+	public void SurvivalUnisexProbabilities_Man_ManProportionIsExactlyOne_ReturnsManProbabilities()
 	{
 		// Arrange
 		DateOnly calculationDate = CalculationDate.AddDays(56);
 		IDateArrayStrategy dateArrayStrategy = new FirstDayOfEveryMonthStrategy();
-		OrderedDates decrementDates = new(dateArrayStrategy, calculationDate, calculationDate.AddYears(100));
+		OrderedDates decrementDates = new(dateArrayStrategy, calculationDate, calculationDate.AddYears(2));
+
+
+		// Act
+		var actualSurvivalUnisexProbabilities = Decrement.SurvivalProbabilities(ManIndividualMocked.Object, calculationDate, decrementDates);
+		var expectedSurvivalUnisexProbabilities = Decrement.SurvivalUnisexProbabilities(ManIndividualMocked.Object, calculationDate, decrementDates, 1m);
+
+		// Assert
+		Assert.AreEqual(expectedSurvivalUnisexProbabilities, actualSurvivalUnisexProbabilities);
+	}
+	[TestMethod]
+	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual>.SurvivalUnisexProbabilities))]
+	public void SurvivalUnisexProbabilities_Woman_ManProportionIsExactlyOne_ReturnsManProbabilities()
+	{
+		// Arrange
+		DateOnly calculationDate = CalculationDate.AddDays(56);
+		IDateArrayStrategy dateArrayStrategy = new FirstDayOfEveryMonthStrategy();
+		OrderedDates decrementDates = new(dateArrayStrategy, calculationDate, calculationDate.AddYears(2));
 
 
 		// Act
@@ -329,12 +370,12 @@ public class GenderedDecrementTTest
 	}
 	[TestMethod]
 	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual>.SurvivalUnisexProbabilities))]
-	public void SurvivalUnisexProbabilities_ManProportionIsExactlyZero_ReturnsWomanProbabilities()
+	public void SurvivalUnisexProbabilities_Man_ManProportionIsExactlyZero_ReturnsWomanProbabilities()
 	{
 		// Arrange
 		DateOnly calculationDate = CalculationDate.AddDays(56);
 		IDateArrayStrategy dateArrayStrategy = new FirstDayOfEveryMonthStrategy();
-		OrderedDates decrementDates = new(dateArrayStrategy, calculationDate, calculationDate.AddYears(100));
+		OrderedDates decrementDates = new(dateArrayStrategy, calculationDate, calculationDate.AddYears(2));
 
 
 		// Act
@@ -346,12 +387,29 @@ public class GenderedDecrementTTest
 	}
 	[TestMethod]
 	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual>.SurvivalUnisexProbabilities))]
+	public void SurvivalUnisexProbabilities_Woman_ManProportionIsExactlyZero_ReturnsWomanProbabilities()
+	{
+		// Arrange
+		DateOnly calculationDate = CalculationDate.AddDays(56);
+		IDateArrayStrategy dateArrayStrategy = new FirstDayOfEveryMonthStrategy();
+		OrderedDates decrementDates = new(dateArrayStrategy, calculationDate, calculationDate.AddYears(2));
+
+
+		// Act
+		var actualSurvivalUnisexProbabilities = Decrement.SurvivalProbabilities(WomanIndividualMocked.Object, calculationDate, decrementDates);
+		var expectedSurvivalUnisexProbabilities = Decrement.SurvivalUnisexProbabilities(WomanIndividualMocked.Object, calculationDate, decrementDates, 0);
+
+		// Assert
+		Assert.AreEqual(expectedSurvivalUnisexProbabilities, actualSurvivalUnisexProbabilities);
+	}
+	[TestMethod]
+	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual>.SurvivalUnisexProbabilities))]
 	public void SurvivalUnisexProbabilities_FirstDecrementDateBeforeCalculationDate_ThrowsArguementException()
 	{
 		// Arrange
 		DateOnly calculationDate = CalculationDate.AddDays(56);
 		IDateArrayStrategy dateArrayStrategy = new FirstDayOfEveryMonthStrategy();
-		OrderedDates decrementDates = new(dateArrayStrategy, calculationDate, calculationDate.AddYears(100));
+		OrderedDates decrementDates = new(dateArrayStrategy, calculationDate, calculationDate.AddYears(2));
 
 		// Act
 
@@ -365,7 +423,7 @@ public class GenderedDecrementTTest
 		// Arrange
 		DateOnly calculationDate = ManIndividualMocked.Object.DateOfBirth.AddDays(-1);
 		IDateArrayStrategy dateArrayStrategy = new FirstDayOfEveryMonthStrategy();
-		OrderedDates decrementDates = new(dateArrayStrategy, calculationDate, calculationDate.AddYears(100));
+		OrderedDates decrementDates = new(dateArrayStrategy, calculationDate, calculationDate.AddYears(2));
 
 		// Act
 
@@ -374,12 +432,12 @@ public class GenderedDecrementTTest
 	}
 	[TestMethod]
 	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual>.SurvivalUnisexProbabilities))]
-	public void SurvivalUnisexProbabilities_CalculationDateInMiddleOfAYear_DecrementEachMonth_ReturnGoodValue()
+	public void SurvivalUnisexProbabilities_Man_CalculationDateInMiddleOfAYear_DecrementEachMonth_ReturnGoodValue()
 	{
 		// Arrange
 		DateOnly calculationDate = CalculationDate.AddDays(57);
 		IDateArrayStrategy dateArrayStrategy = new FirstDayOfEveryMonthStrategy();
-		OrderedDates decrementDates = new(dateArrayStrategy, calculationDate, calculationDate.AddYears(100));
+		OrderedDates decrementDates = new(dateArrayStrategy, calculationDate, calculationDate.AddYears(2));
 		decimal[] expectedSurvivalUnisexProbabilities = new decimal[decrementDates.Count];
 		for (int i = 0; i < decrementDates.Count; i++)
 		{
@@ -406,12 +464,44 @@ public class GenderedDecrementTTest
 	}
 	[TestMethod]
 	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual>.SurvivalUnisexProbabilities))]
+	public void SurvivalUnisexProbabilities_Woman_CalculationDateInMiddleOfAYear_DecrementEachMonth_ReturnGoodValue()
+	{
+		// Arrange
+		DateOnly calculationDate = CalculationDate.AddDays(57);
+		IDateArrayStrategy dateArrayStrategy = new FirstDayOfEveryMonthStrategy();
+		OrderedDates decrementDates = new(dateArrayStrategy, calculationDate, calculationDate.AddYears(2));
+		decimal[] expectedSurvivalUnisexProbabilities = new decimal[decrementDates.Count];
+		for (int i = 0; i < decrementDates.Count; i++)
+		{
+			if (decrementDates[i].DayOfYear != 1)
+			{
+				var decrementProbInYearMan = DecrementTableMocked.Object.GetRate(ManIndividualMocked.Object, decrementDates[i].FirstDayOfTheYear());
+				var decrementProbInYearWoman = DecrementTableMocked.Object.GetRate(WomanIndividualMocked.Object, decrementDates[i].FirstDayOfTheYear());
+				DecrementTableMocked.Setup(x => x.GetRate(ManIndividualMocked.Object, decrementDates[i]))
+					.Returns(decrementProbInYearMan);
+				DecrementTableMocked.Setup(x => x.GetRate(WomanIndividualMocked.Object, decrementDates[i]))
+					.Returns(decrementProbInYearWoman);
+			}
+		}
+
+		// Act
+		for (int i = 0; i < decrementDates.Count; i++)
+			expectedSurvivalUnisexProbabilities[i] = Decrement.SurvivalUnisexProbability(ManIndividualMocked.Object, calculationDate, decrementDates[i], MANPROPORTION);
+
+		var actualSurvivalUnisexProbabilities = Decrement.SurvivalUnisexProbabilities(WomanIndividualMocked.Object, calculationDate, decrementDates, MANPROPORTION);
+
+		// Assert
+		for (int i = 0; i < decrementDates.Count; i++)
+			Assert.AreEqual(expectedSurvivalUnisexProbabilities[i], actualSurvivalUnisexProbabilities[i], 30 * Maths.Epsilon);
+	}
+	[TestMethod]
+	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual>.SurvivalUnisexProbabilities))]
 	public void SurvivalUnisexProbabilities_CallingForSameSurvivalUnisexProbabilities_ReturnFromCacheSameObject()
 	{
 		// Arrange
 		DateOnly calculationDate = CalculationDate.AddDays(56);
 		IDateArrayStrategy dateArrayStrategy = new FirstDayOfEveryMonthStrategy();
-		OrderedDates decrementDates = new(dateArrayStrategy, calculationDate, calculationDate.AddYears(100));
+		OrderedDates decrementDates = new(dateArrayStrategy, calculationDate, calculationDate.AddYears(2));
 
 
 		// Act
@@ -428,7 +518,7 @@ public class GenderedDecrementTTest
 		// Arrange
 		DateOnly calculationDate = CalculationDate.AddDays(56);
 		IDateArrayStrategy dateArrayStrategy = new FirstDayOfEveryMonthStrategy();
-		OrderedDates decrementDates = new(dateArrayStrategy, calculationDate, calculationDate.AddYears(100));
+		OrderedDates decrementDates = new(dateArrayStrategy, calculationDate, calculationDate.AddYears(2));
 
 
 		// Act
@@ -445,7 +535,7 @@ public class GenderedDecrementTTest
 		// Arrange
 		DateOnly calculationDate = CalculationDate.AddDays(56);
 		IDateArrayStrategy dateArrayStrategy = new FirstDayOfEveryMonthStrategy();
-		OrderedDates decrementDates = new(dateArrayStrategy, calculationDate, calculationDate.AddYears(100));
+		OrderedDates decrementDates = new(dateArrayStrategy, calculationDate, calculationDate.AddYears(2));
 
 
 		// Act
@@ -457,12 +547,29 @@ public class GenderedDecrementTTest
 	}
 	[TestMethod]
 	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual>.DecrementUnisexProbabilities))]
-	public void DecrementUnisexProbabilities_ManProportionIsExactlyOne_ReturnsManProbabilities()
+	public void DecrementUnisexProbabilities_Man_ManProportionIsExactlyOne_ReturnsManProbabilities()
 	{
 		// Arrange
 		DateOnly calculationDate = CalculationDate.AddDays(56);
 		IDateArrayStrategy dateArrayStrategy = new FirstDayOfEveryMonthStrategy();
-		OrderedDates decrementDates = new(dateArrayStrategy, calculationDate, calculationDate.AddYears(100));
+		OrderedDates decrementDates = new(dateArrayStrategy, calculationDate, calculationDate.AddYears(2));
+
+
+		// Act
+		var actualSurvivalUnisexProbabilities = Decrement.DecrementProbabilities(ManIndividualMocked.Object, calculationDate, decrementDates);
+		var expectedSurvivalUnisexProbabilities = Decrement.DecrementUnisexProbabilities(ManIndividualMocked.Object, calculationDate, decrementDates, 1m);
+
+		// Assert
+		Assert.AreEqual(expectedSurvivalUnisexProbabilities, actualSurvivalUnisexProbabilities);
+	}
+	[TestMethod]
+	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual>.DecrementUnisexProbabilities))]
+	public void DecrementUnisexProbabilities_Woman_ManProportionIsExactlyOne_ReturnsManProbabilities()
+	{
+		// Arrange
+		DateOnly calculationDate = CalculationDate.AddDays(56);
+		IDateArrayStrategy dateArrayStrategy = new FirstDayOfEveryMonthStrategy();
+		OrderedDates decrementDates = new(dateArrayStrategy, calculationDate, calculationDate.AddYears(2));
 
 
 		// Act
@@ -474,12 +581,12 @@ public class GenderedDecrementTTest
 	}
 	[TestMethod]
 	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual>.DecrementUnisexProbabilities))]
-	public void DecrementUnisexProbabilities_ManProportionIsExactlyZero_ReturnsWomanProbabilities()
+	public void DecrementUnisexProbabilities_Man_ManProportionIsExactlyZero_ReturnsWomanProbabilities()
 	{
 		// Arrange
 		DateOnly calculationDate = CalculationDate.AddDays(56);
 		IDateArrayStrategy dateArrayStrategy = new FirstDayOfEveryMonthStrategy();
-		OrderedDates decrementDates = new(dateArrayStrategy, calculationDate, calculationDate.AddYears(100));
+		OrderedDates decrementDates = new(dateArrayStrategy, calculationDate, calculationDate.AddYears(2));
 
 
 		// Act
@@ -491,18 +598,56 @@ public class GenderedDecrementTTest
 	}
 	[TestMethod]
 	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual>.DecrementUnisexProbabilities))]
-	public void DecrementProbabilities_CalculationDateInMiddleOfAYear_DecrementEachMonth_ReturnGoodValue()
+	public void DecrementUnisexProbabilities_Woman_ManProportionIsExactlyZero_ReturnsWomanProbabilities()
 	{
 		// Arrange
 		DateOnly calculationDate = CalculationDate.AddDays(56);
 		IDateArrayStrategy dateArrayStrategy = new FirstDayOfEveryMonthStrategy();
-		OrderedDates decrementDates = new(dateArrayStrategy, calculationDate, calculationDate.AddYears(100));
-		decimal[] expectedDecrementProbabilities = new decimal[decrementDates.Count];
+		OrderedDates decrementDates = new(dateArrayStrategy, calculationDate, calculationDate.AddYears(2));
 
 
 		// Act
-		var actualDecrementProbabilities = Decrement.DecrementUnisexProbabilities(ManIndividualMocked.Object, calculationDate, decrementDates, MANPROPORTION);
-		var expectedSurvivalUnisexProbabilities = Decrement.SurvivalUnisexProbabilities(ManIndividualMocked.Object, calculationDate, decrementDates, MANPROPORTION);
+		var actualSurvivalUnisexProbabilities = Decrement.DecrementProbabilities(WomanIndividualMocked.Object, calculationDate, decrementDates);
+		var expectedSurvivalUnisexProbabilities = Decrement.DecrementUnisexProbabilities(WomanIndividualMocked.Object, calculationDate, decrementDates, 0);
+
+		// Assert
+		Assert.AreEqual(expectedSurvivalUnisexProbabilities, actualSurvivalUnisexProbabilities);
+	}
+	[TestMethod]
+	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual>.DecrementUnisexProbabilities))]
+	public void DecrementUnisexProbabilities_Man_CalculationDateInMiddleOfAYear_DecrementEachMonth_ReturnGoodValue()
+	{
+		// Arrange
+		DateOnly calculationDate = CalculationDate.AddDays(56);
+		IDateArrayStrategy dateArrayStrategy = new FirstDayOfEveryMonthStrategy();
+		OrderedDates decrementDates = new(dateArrayStrategy, calculationDate, calculationDate.AddYears(2));
+		decimal[] expectedDecrementProbabilities = new decimal[decrementDates.Count];
+		var newDecrement = new GenderedDecrement<IGenderedIndividual>(DecrementTableMocked.Object, ImprovementMocked.Object, AdjustmentMocked.Object);
+
+		// Act
+		var actualDecrementProbabilities = newDecrement.DecrementUnisexProbabilities(ManIndividualMocked.Object, calculationDate, decrementDates, MANPROPORTION);
+		var expectedSurvivalUnisexProbabilities = newDecrement.SurvivalUnisexProbabilities(ManIndividualMocked.Object, calculationDate, decrementDates, MANPROPORTION);
+		for (int i = 0; i < decrementDates.Count; i++)
+			expectedDecrementProbabilities[i] = 1 - expectedSurvivalUnisexProbabilities[i];
+
+
+		// Assert
+		CollectionAssert.AreEqual(expectedSurvivalUnisexProbabilities, actualDecrementProbabilities);
+	}
+	[TestMethod]
+	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual>.DecrementUnisexProbabilities))]
+	public void DecrementUnisexProbabilities_Woman_CalculationDateInMiddleOfAYear_DecrementEachMonth_ReturnGoodValue()
+	{
+		// Arrange
+		DateOnly calculationDate = CalculationDate.AddDays(56);
+		IDateArrayStrategy dateArrayStrategy = new FirstDayOfEveryMonthStrategy();
+		OrderedDates decrementDates = new(dateArrayStrategy, calculationDate, calculationDate.AddYears(2));
+		decimal[] expectedDecrementProbabilities = new decimal[decrementDates.Count];
+		var newDecrement = new GenderedDecrement<IGenderedIndividual>(DecrementTableMocked.Object, ImprovementMocked.Object, AdjustmentMocked.Object);
+
+		// Act
+		var actualDecrementProbabilities = newDecrement.DecrementUnisexProbabilities(ManIndividualMocked.Object, calculationDate, decrementDates, MANPROPORTION);
+		var expectedSurvivalUnisexProbabilities = newDecrement.SurvivalUnisexProbabilities(WomanIndividualMocked.Object, calculationDate, decrementDates, MANPROPORTION);
 		for (int i = 0; i < decrementDates.Count; i++)
 			expectedDecrementProbabilities[i] = 1 - expectedSurvivalUnisexProbabilities[i];
 
