@@ -78,6 +78,16 @@ public class GenderedImprovementTTest
 		Assert.AreEqual(ImprovementRates[0][0] * 1.2m, GenderedImprovement.ImprovementRate(ManIndividualMocked.Object, 0, ImprovementTableMocked.Object.FirstYear));
 	}
 	[TestMethod]
+	[TestCategory("Constructors")]
+	public void Constructor_WithTableOnly_CallBaseDoesNotThrow()
+	{
+		// Arrange
+		var improvement = new GenderedImprovement<IGenderedIndividual>(ImprovementTableMocked.Object);
+		// Act
+		// Assert
+		Assert.AreEqual(ImprovementRates[0][0], improvement.ImprovementRate(ManIndividualMocked.Object, 0, ImprovementTableMocked.Object.FirstYear));
+	}
+	[TestMethod]
 	[TestCategory(nameof(GenderedImprovement<IGenderedIndividual>.GetHashCode))]
 	public void GetHashCode_ReturnsGoodHashCode()
 	{

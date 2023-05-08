@@ -237,8 +237,8 @@ public class DecrementTTest
 	{
 		// Arrange
 		DateOnly calculationDate = CalculationDate.AddDays(57);
-		IDateArrayStrategy dateArrayStrategy = new FirstDayOfEveryMonthStrategy();
-		OrderedDates decrementDates = new(dateArrayStrategy, calculationDate, calculationDate.AddYears(2));
+		IDateArrayStrategy dateArrayStrategy = new FirstDayOfEveryYearStrategy();
+		OrderedDates decrementDates = new(dateArrayStrategy, calculationDate, calculationDate.AddYears(100));
 		decimal[] expectedSurvivalProbabilities = new decimal[decrementDates.Count];
 		for (int i = 0; i < decrementDates.Count; i++)
 		{

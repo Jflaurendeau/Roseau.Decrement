@@ -436,8 +436,8 @@ public class GenderedDecrementTTest
 	{
 		// Arrange
 		DateOnly calculationDate = CalculationDate.AddDays(57);
-		IDateArrayStrategy dateArrayStrategy = new FirstDayOfEveryMonthStrategy();
-		OrderedDates decrementDates = new(dateArrayStrategy, calculationDate, calculationDate.AddYears(2));
+		IDateArrayStrategy dateArrayStrategy = new FirstDayOfEveryYearStrategy();
+		OrderedDates decrementDates = new(dateArrayStrategy, calculationDate, calculationDate.AddYears(100));
 		decimal[] expectedSurvivalUnisexProbabilities = new decimal[decrementDates.Count];
 		for (int i = 0; i < decrementDates.Count; i++)
 		{
