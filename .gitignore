@@ -361,3 +361,12 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Benchmark
+/tests/Roseau.Decrement.Benchmark/
+
+# Cpm2014 Tables commissionned by the CIA
+/src/Roseau.Decrement/Aggregates/Decrements/LifeTables/Cpm2014Priv.cs
+/src/Roseau.Decrement/Aggregates/Decrements/LifeTables/Cpm2014Composite.cs
+/src/Roseau.Decrement/Aggregates/Decrements/LifeTables/Cpm2014Publ.cs
+/src/Roseau.Decrement/Aggregates/Decrements/ImprovementScales/CpmBTable.cs

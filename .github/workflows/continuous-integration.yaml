@@ -1,0 +1,110 @@
+﻿name: Continuous Integration ♾️⬇️
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+    paths-ignore:
+      - "docs/**"
+      - "*.md"
+  fork:
+    branches:
+      - main
+      - develop
+    paths-ignore:
+      - "docs/**"
+      - "*.md"
+  pull_request:
+    branches:
+      - main
+      - develop
+    types:
+      - opened
+      - reopened
+    paths-ignore:
+      - "docs/**"
+      - "*.md"
+
+env:
+  DOTNET_VERSION: "7.x"
+  JDK_VERSION: "11"
+
+jobs:
+  Build-and-Tests:
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out code 👀
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Restore packages and dependencies 📥📦
+        run: |
+             dotnet tool install coverlet.console -g
+             dotnet restore ./src/Roseau.Decrement/Roseau.Decrement.csproj
+             dotnet restore ./tests/Roseau.Decrement.UnitTests/Roseau.Decrement.UnitTests.csproj
+      - name: Build For Release 👷‍♀🏗️
+        run: |
+             dotnet build ./src/Roseau.Decrement/Roseau.Decrement.csproj -c Release --no-restore
+             dotnet build ./tests/Roseau.Decrement.UnitTests/Roseau.Decrement.UnitTests.csproj -c Release --no-restore
+
+      - name: Run tests 🩺🔬🧑‍🔬
+        run: dotnet test ./tests/Roseau.Decrement.UnitTests/Roseau.Decrement.UnitTests.csproj -c Release --no-restore
+
+      - name: Set up JDK 11 (For SonarCloud) ⚒️
+        uses: actions/setup-java@v3
+        with:
+          java-version: ${{ env.JDK_VERSION }}
+          distribution: 'zulu'
+
+      - name: Cache SonarCloud Packages ☁️📦
+        uses: actions/cache@v3
+        with:
+          path: ~\sonar\cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      - name: Cache SonarCloud Scanner ☁️🕵️📝
+        id: cache-sonar-scanner
+        uses: actions/cache@v3
+        with:
+          path: .\.sonar\scanner
+          key: ${{ runner.os }}-sonar-scanner
+          restore-keys: ${{ runner.os }}-sonar-scanner
+
+      - name: Install SonarCloud scanner ☁️🕵️
+        if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
+        shell: powershell
+        run: |
+          New-Item -Path .\.sonar\scanner -ItemType Directory
+          dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
+      - name: Build For Analysis 👷‍♀🏗️🕵️
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        shell: powershell
+        run: |
+             .\.sonar\scanner\dotnet-sonarscanner begin /k:"Jflaurendeau_Roseau.Decrement" /o:"jflaurendeau" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths=".\tests\Roseau.Decrement.UnitTests\TestResults\coverage.xml"
+             dotnet build .\src\Roseau.Decrement\Roseau.Decrement.csproj
+             dotnet build .\tests\Roseau.Decrement.UnitTests\Roseau.Decrement.UnitTests.csproj
+             coverlet .\tests\Roseau.Decrement.UnitTests\bin\Debug\net7.0\Roseau.Decrement.UnitTests.dll --target "dotnet" --targetargs "test --no-build --no-restore" -f=opencover -o=".\tests\Roseau.Decrement.UnitTests\TestResults\coverage.xml"
+             .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+  Semantic-versioning:
+    runs-on: ubuntu-latest
+    needs: Build-and-Tests
+    timeout-minutes: 10
+    steps:
+      - name: Check out code 👀
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Semantic versioning
+        uses: PaulHatch/semantic-version@v5.0.3
+        with:
+          tag_prefix: "v"
+          major_pattern: "BREAKING CHANGE:"
+          minor_pattern: "Feature:"
+          version_format: "v${major}.${minor}.${patch}+${increment}"
