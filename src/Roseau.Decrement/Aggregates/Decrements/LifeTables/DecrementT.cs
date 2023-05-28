@@ -1,13 +1,16 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Roseau.DateHelpers;
 using Roseau.Decrement.Aggregates.Individuals;
+using Roseau.Decrement.Common.DecrementBetweenIntegralAgeStrategies;
 using Roseau.Decrement.SeedWork;
-
 namespace Roseau.Decrement.Aggregates.Decrements.LifeTables;
 
-public class Decrement<TIndividual> : IDecrement<TIndividual>
+public class Decrement<TIndividual, TDecrementBetweenIntegralAge> : IDecrement<TIndividual>, IDecrementBetweenIntegralAge<TDecrementBetweenIntegralAge>
 	where TIndividual : IIndividual
+	where TDecrementBetweenIntegralAge : IDecrementBetweenIntegralAgeStrategy, new()
 {
+	private readonly TDecrementBetweenIntegralAge _DecrementBetweenIntegralAge = new();
+	
 	#region Fields
 	private const int TIMESPAN = 300;
 	protected readonly IDecrementTable<TIndividual> _Table;
@@ -33,6 +36,7 @@ public class Decrement<TIndividual> : IDecrement<TIndividual>
 	#endregion
 
 	protected delegate decimal DecrementOrSurvivalProbabilityIn(TIndividual individual, in DateOnly calculationDate, in DateOnly decrementDate);
+	public TDecrementBetweenIntegralAge DecrementBetweenIntegralAge => _DecrementBetweenIntegralAge;
 
 	#region private methods
 	protected static MemoryCacheEntryOptions GetMemoryCacheEntryOptions() => new MemoryCacheEntryOptions().SetSize(1)
@@ -49,7 +53,7 @@ public class Decrement<TIndividual> : IDecrement<TIndividual>
 		return adjustmentFactor * deathProbability * improvementFactor;
 	}
 	private decimal SurvivalBetweenIntegerAge(TIndividual individual, in DateOnly firstDate, in DateOnly secondDate)
-		=> 1 - IDecrement.UniformDecrementDistribution(DecrementRate(individual, firstDate), firstDate, secondDate);
+		=> 1 - DecrementBetweenIntegralAge.DecrementProbability(DecrementRate(individual, firstDate), firstDate, secondDate);
 	protected decimal YearlySurvival(TIndividual individual, in DateOnly decrementDate)
 		=> 1 - DecrementRate(individual, decrementDate);
 	protected decimal GetSurvivalProbability(TIndividual individual, in DateOnly calculationDate, in DateOnly decrementDate)
@@ -97,22 +101,36 @@ public class Decrement<TIndividual> : IDecrement<TIndividual>
 		int i = 0;
 		probabilities[i] = decrementOrSurvivalProbability(individual, in calculationDate, dates[i]);
 		i++;
-		while (i < length
-			&& dates[i] < lastPossibleDecrementDate)
+		if (decrementOrSurvivalProbability == GetSurvivalProbability)
 		{
-			probabilities[i] = probabilities[i - 1] * decrementOrSurvivalProbability(individual, dates[i - 1], dates[i]);
-			i++;
+			while (i < length
+				&& dates[i] <= lastPossibleDecrementDate)
+			{
+				probabilities[i] = probabilities[i - 1] * decrementOrSurvivalProbability(individual, dates[i - 1], dates[i]);
+				i++;
+			}
 		}
+		else
+		{
+			while (i < length
+				&& dates[i] <= lastPossibleDecrementDate)
+			{
+				probabilities[i] = probabilities[i - 1] + (1 - probabilities[i - 1]) * decrementOrSurvivalProbability(individual, dates[i - 1], dates[i]);
+				i++;
+			}
+		}
+		decimal lastProbability = probabilities[i - 1];
 		while (i < length)
 		{
-			probabilities[i] = 0m;
+			probabilities[i] = lastProbability;
 			i++;
 		}
 		return probabilities;
 	}
-	protected virtual int GetHashCode(TIndividual individual, in DateOnly calculationDate, OrderedDates dates, DecrementOrSurvivalProbabilityIn decrementOrSurvivalProbability) => HashCode.Combine(_Table, individual, calculationDate, dates, decrementOrSurvivalProbability);
+	protected virtual int GetHashCode(TIndividual individual, in DateOnly calculationDate, OrderedDates dates, DecrementOrSurvivalProbabilityIn decrementOrSurvivalProbability) => HashCode.Combine(_Table, individual, calculationDate, dates, decrementOrSurvivalProbability == GetSurvivalProbability);
 	#endregion
 
+	public DateOnly LastPossibleDecrementDate(TIndividual individual) => _Table.LastPossibleDecrementDate(individual);
 	public decimal SurvivalProbability(TIndividual individual, in DateOnly calculationDate, in DateOnly decrementDate)
 		=> GetProbability(individual, in calculationDate, in decrementDate, GetSurvivalProbability);
 	public decimal[] SurvivalProbabilities(TIndividual individual, in DateOnly calculationDate, OrderedDates dates)

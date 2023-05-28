@@ -2,12 +2,14 @@
 using Roseau.DateHelpers;
 using Roseau.Decrement.Aggregates.Decrements.Adjustments;
 using Roseau.Decrement.Aggregates.Individuals;
+using Roseau.Decrement.Common.DecrementBetweenIntegralAgeStrategies;
 using Roseau.Decrement.SeedWork;
 
 namespace Roseau.Decrement.Aggregates.Decrements.LifeTables;
 
-public class GenderedDecrement<TGenderedIndividual> : Decrement<TGenderedIndividual>, IUnisexDecrement<TGenderedIndividual>
+public class GenderedDecrement<TGenderedIndividual, TDecrementBetweenIntegralAge> : Decrement<TGenderedIndividual, TDecrementBetweenIntegralAge>, IUnisexDecrement<TGenderedIndividual>
 	where TGenderedIndividual : IGenderedIndividual
+	where TDecrementBetweenIntegralAge : IDecrementBetweenIntegralAgeStrategy, new()
 {
 	#region Constructors
 	public GenderedDecrement(IDecrementTable<TGenderedIndividual> table) : base(table, default!, default!, default!) { }
@@ -27,7 +29,7 @@ public class GenderedDecrement<TGenderedIndividual> : Decrement<TGenderedIndivid
 	{
 		decimal manDecrement = DecrementRate(manIndividual, firstDate);
 		decimal womanDecrement = DecrementRate(womanIndividual, firstDate);
-		return 1 - IDecrement.UniformDecrementDistribution(manDecrement * manProportion + (1 - manProportion) * womanDecrement, firstDate, secondDate);
+		return 1 - DecrementBetweenIntegralAge.DecrementProbability(manDecrement * manProportion + (1 - manProportion) * womanDecrement, firstDate, secondDate);
 	}
 	private decimal YearlyUnisexSurvival(TGenderedIndividual manIndividual, TGenderedIndividual womanIndividual, in DateOnly decrementDate, in decimal manProportion)
 	{

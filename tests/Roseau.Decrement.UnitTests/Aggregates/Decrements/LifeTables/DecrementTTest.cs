@@ -4,6 +4,7 @@ using Roseau.DateHelpers.DateArrayStrategies;
 using Roseau.Decrement.Aggregates.Decrements.ImprovementScales;
 using Roseau.Decrement.Aggregates.Decrements.LifeTables;
 using Roseau.Decrement.Aggregates.Individuals;
+using Roseau.Decrement.Common.DecrementBetweenIntegralAgeStrategies;
 using Roseau.Decrement.SeedWork;
 using Roseau.Decrement.UnitTests.AssertExtensions;
 using Roseau.Mathematics;
@@ -22,7 +23,7 @@ public class DecrementTTest
 	private static DateOnly CalculationDate { get; } = new(2018, 1, 1);
 	private static decimal[][] SurvivalProbabilities { get; } = new decimal[2][];
 	private static decimal[][] DeathProbabilities { get; } = new decimal[2][];
-	private static Decrement<IGenderedIndividual> Decrement { get; }  = new Decrement<IGenderedIndividual>(DecrementTableMocked.Object, ImprovementMocked.Object, AdjustmentMocked.Object);
+	private static Decrement<IGenderedIndividual, UniformDeathDistributionStrategy> Decrement { get; }  = new Decrement<IGenderedIndividual, UniformDeathDistributionStrategy>(DecrementTableMocked.Object, ImprovementMocked.Object, AdjustmentMocked.Object);
 	private static DateOnly[] SurvivalDates { get; } = new DateOnly[NUMBEROFYEARS];
 
 	[ClassInitialize]
@@ -52,13 +53,13 @@ public class DecrementTTest
 		SurvivalProbabilities[1] = womanSurvivalProbabilities;
 		for (int i = 0; i < NUMBEROFYEARS; i++)
 		{
-			decimal survivalProbability = (NUMBEROFYEARS - 1.0m - i) / (NUMBEROFYEARS - 1);
+			decimal survivalProbability = (NUMBEROFYEARS - 1.0m - i) / NUMBEROFYEARS;
 			manSurvivalProbabilities[i] = survivalProbability;
 			womanSurvivalProbabilities[i] = Math.Min(1m, survivalProbability * (1 + i / (5m * NUMBEROFYEARS)));
 			if (i == 0)
 			{
-				manDeathProbabilities[i] = 0;
-				womanDeathProbabilities[i] = 0;
+				manDeathProbabilities[i] = 1 - manSurvivalProbabilities[i];
+				womanDeathProbabilities[i] = 1 - womanSurvivalProbabilities[i];
 			}
 			else
 			{
@@ -66,10 +67,13 @@ public class DecrementTTest
 				womanDeathProbabilities[i] = 1 - womanSurvivalProbabilities[i] / womanSurvivalProbabilities[i - 1];
 			}
 			SurvivalDates[i] = CalculationDate.AddYears(i);
-			DecrementTableMocked.Setup(x => x.GetRate(ManIndividualMocked.Object, SurvivalDates[i]))
-				.Returns(manDeathProbabilities[i]);
-			DecrementTableMocked.Setup(x => x.GetRate(WomanIndividualMocked.Object, SurvivalDates[i]))
-				.Returns(womanDeathProbabilities[i]);
+			for (int k = 0; k < 12; k++)
+			{
+				DecrementTableMocked.Setup(x => x.GetRate(ManIndividualMocked.Object, SurvivalDates[i].AddMonths(k)))
+					.Returns(manDeathProbabilities[i]);
+				DecrementTableMocked.Setup(x => x.GetRate(WomanIndividualMocked.Object, SurvivalDates[i].AddMonths(k)))
+					.Returns(womanDeathProbabilities[i]);
+			}
 		}
 		DecrementTableMocked.Setup(x => x.FirstAge)
 			.Returns(18);
@@ -87,7 +91,7 @@ public class DecrementTTest
 
 		// Act
 		// Assert
-		Assert.ThrowsException<ArgumentNullException>(() => new Decrement<IGenderedIndividual>(null!));
+		Assert.ThrowsException<ArgumentNullException>(() => new Decrement<IGenderedIndividual, UniformDeathDistributionStrategy>(null!));
 	}
 	[TestMethod]
 	[TestCategory("Constructors")]
@@ -97,7 +101,7 @@ public class DecrementTTest
 
 		// Act
 		// Assert
-		Assert.That.DoesNotThrow(() => new Decrement<IGenderedIndividual>(DecrementTableMocked.Object, ImprovementMocked.Object));
+		Assert.That.DoesNotThrow(() => new Decrement<IGenderedIndividual, UniformDeathDistributionStrategy>(DecrementTableMocked.Object, ImprovementMocked.Object));
 	}
 	[TestMethod]
 	[TestCategory("Constructors")]
@@ -107,10 +111,10 @@ public class DecrementTTest
 
 		// Act
 		// Assert
-		Assert.That.DoesNotThrow(() => new Decrement<IGenderedIndividual>(DecrementTableMocked.Object, AdjustmentMocked.Object));
+		Assert.That.DoesNotThrow(() => new Decrement<IGenderedIndividual, UniformDeathDistributionStrategy>(DecrementTableMocked.Object, AdjustmentMocked.Object));
 	}
 	[TestMethod]
-	[TestCategory(nameof(Decrement<IGenderedIndividual>.SurvivalProbability))]
+	[TestCategory(nameof(Decrement<IGenderedIndividual, UniformDeathDistributionStrategy>.SurvivalProbability))]
 	public void SurvivalProbability_DecrementDateBeforeCalculationDate_ThrowsArguementException()
 	{
 		// Arrange
@@ -120,7 +124,7 @@ public class DecrementTTest
 		Assert.ThrowsException<ArgumentException>(() => Decrement.SurvivalProbability(ManIndividualMocked.Object, CalculationDate.AddYears(2), CalculationDate));
 	}
 	[TestMethod]
-	[TestCategory(nameof(Decrement<IGenderedIndividual>.SurvivalProbability))]
+	[TestCategory(nameof(Decrement<IGenderedIndividual, UniformDeathDistributionStrategy>.SurvivalProbability))]
 	public void SurvivalProbability_DateOfBirthIsNotBeforeCalculationDate_ThrowsArguementException()
 	{
 		// Arrange
@@ -130,7 +134,7 @@ public class DecrementTTest
 		Assert.ThrowsException<ArgumentException>(() => Decrement.SurvivalProbability(ManIndividualMocked.Object, ManIndividualMocked.Object.DateOfBirth.AddDays(-1), CalculationDate));
 	}
 	[TestMethod]
-	[TestCategory(nameof(Decrement<IGenderedIndividual>.SurvivalProbability))]
+	[TestCategory(nameof(Decrement<IGenderedIndividual, UniformDeathDistributionStrategy>.SurvivalProbability))]
 	public void SurvivalProbability_ManAndWomanHaveTheirOwnDifferentTable_ReturnsDifferentValue()
 	{
 		// Arrange
@@ -142,19 +146,7 @@ public class DecrementTTest
 		Assert.AreNotEqual(notExpectedSurvivalProbability, actualSurvivalProbability);
 	}
 	[TestMethod]
-	[TestCategory(nameof(Decrement<IGenderedIndividual>.SurvivalProbability))]
-	public void SurvivalProbability_UnderFirstAge_ReturnFirstValue()
-	{
-		// Arrange
-
-		// Act
-		var expectedSurvivalProbability = 1 - DeathProbabilities[(int)ManIndividualMocked.Object.Gender][0];
-		var actualSurvivalProbability = Decrement.SurvivalProbability(ManIndividualMocked.Object, CalculationDate.AddYears(-1), CalculationDate);
-		// Assert
-		Assert.AreEqual(expectedSurvivalProbability, actualSurvivalProbability);
-	}
-	[TestMethod]
-	[TestCategory(nameof(Decrement<IGenderedIndividual>.SurvivalProbability))]
+	[TestCategory(nameof(Decrement<IGenderedIndividual, UniformDeathDistributionStrategy>.SurvivalProbability))]
 	public void SurvivalProbability_OverLastAge_ReturnLastValue()
 	{
 		// Arrange
@@ -166,7 +158,7 @@ public class DecrementTTest
 		Assert.AreEqual(expectedSurvivalProbability, actualSurvivalProbability);
 	}
 	[TestMethod]
-	[TestCategory(nameof(Decrement<IGenderedIndividual>.SurvivalProbability))]
+	[TestCategory(nameof(Decrement<IGenderedIndividual, UniformDeathDistributionStrategy>.SurvivalProbability))]
 	public void SurvivalProbability_AgeIsInRangeOfTable_ReturnGoodValue()
 	{
 		// Arrange
@@ -178,7 +170,7 @@ public class DecrementTTest
 		Assert.AreEqual(expectedSurvivalProbability, actualSurvivalProbability);
 	}
 	[TestMethod]
-	[TestCategory(nameof(Decrement<IGenderedIndividual>.SurvivalProbability))]
+	[TestCategory(nameof(Decrement<IGenderedIndividual, UniformDeathDistributionStrategy>.SurvivalProbability))]
 	public void SurvivalProbability_AgeIsInRangeOfTable_CalculationInMiddleOfAYear_DecrementTwoYearsLater_ReturnGoodValue()
 	{
 		// Arrange
@@ -204,7 +196,7 @@ public class DecrementTTest
 		Assert.AreEqual(expectedSurvivalProbability, actualSurvivalProbability);
 	}
 	[TestMethod]
-	[TestCategory(nameof(Decrement<IGenderedIndividual>.SurvivalProbabilities))]
+	[TestCategory(nameof(Decrement<IGenderedIndividual, UniformDeathDistributionStrategy>.SurvivalProbabilities))]
 	public void SurvivalProbabilities_FirstDecrementDateBeforeCalculationDate_ThrowsArguementException()
 	{
 		// Arrange
@@ -218,7 +210,7 @@ public class DecrementTTest
 		Assert.ThrowsException<ArgumentException>(() => Decrement.SurvivalProbabilities(ManIndividualMocked.Object, decrementDates[0].AddDays(1), decrementDates));
 	}
 	[TestMethod]
-	[TestCategory(nameof(Decrement<IGenderedIndividual>.SurvivalProbabilities))]
+	[TestCategory(nameof(Decrement<IGenderedIndividual, UniformDeathDistributionStrategy>.SurvivalProbabilities))]
 	public void SurvivalProbabilities_DateOfBirthIsNotBeforeCalculationDate_ThrowsArguementException()
 	{
 		// Arrange
@@ -232,7 +224,7 @@ public class DecrementTTest
 		Assert.ThrowsException<ArgumentException>(() => Decrement.SurvivalProbabilities(ManIndividualMocked.Object, calculationDate, decrementDates));
 	}
 	[TestMethod]
-	[TestCategory(nameof(Decrement<IGenderedIndividual>.SurvivalProbabilities))]
+	[TestCategory(nameof(Decrement<IGenderedIndividual, UniformDeathDistributionStrategy>.SurvivalProbabilities))]
 	public void SurvivalProbabilities_CalculationDateInMiddleOfAYear_DecrementEachMonth_ReturnGoodValue()
 	{
 		// Arrange
@@ -261,11 +253,11 @@ public class DecrementTTest
 			Assert.AreEqual(expectedSurvivalProbabilities[i], actualSurvivalProbabilities[i], 20 * Maths.Epsilon);
 	}
 	[TestMethod]
-	[TestCategory(nameof(Decrement<IGenderedIndividual>.SurvivalProbabilities))]
+	[TestCategory(nameof(Decrement<IGenderedIndividual, UniformDeathDistributionStrategy>.SurvivalProbabilities))]
 	public void SurvivalProbabilities_CallingForSameSurvivalProbabilities_ReturnFromCacheSameObject()
 	{
 		// Arrange
-		DateOnly calculationDate = CalculationDate.AddDays(56);
+		DateOnly calculationDate = CalculationDate;
 		IDateArrayStrategy dateArrayStrategy = new FirstDayOfEveryMonthStrategy();
 		OrderedDates decrementDates = new(dateArrayStrategy, calculationDate, calculationDate.AddYears(2));
 
@@ -278,15 +270,15 @@ public class DecrementTTest
 		Assert.AreEqual(expectedSurvivalProbabilities, actualSurvivalProbabilities);
 	}
 	[TestMethod]
-	[TestCategory(nameof(Decrement<IGenderedIndividual>.DecrementProbabilities))]
+	[TestCategory(nameof(Decrement<IGenderedIndividual, UniformDeathDistributionStrategy>.DecrementProbabilities))]
 	public void DecrementProbabilities_CalculationDateInMiddleOfAYear_DecrementEachMonth_ReturnGoodValue()
 	{
 		// Arrange
-		DateOnly calculationDate = CalculationDate.AddDays(56);
+		DateOnly calculationDate = CalculationDate;
 		IDateArrayStrategy dateArrayStrategy = new FirstDayOfEveryMonthStrategy();
 		OrderedDates decrementDates = new(dateArrayStrategy, calculationDate, calculationDate.AddYears(2));
 		decimal[] expectedDecrementProbabilities = new decimal[decrementDates.Count];
-		var newDecrement = new Decrement<IGenderedIndividual>(DecrementTableMocked.Object, ImprovementMocked.Object, AdjustmentMocked.Object);
+		var newDecrement = new Decrement<IGenderedIndividual, UniformDeathDistributionStrategy>(DecrementTableMocked.Object, ImprovementMocked.Object, AdjustmentMocked.Object);
 
 
 		// Act
@@ -297,7 +289,7 @@ public class DecrementTTest
 
 
 		// Assert
-		CollectionAssert.AreEqual(expectedSurvivalProbabilities, actualDecrementProbabilities);
+		CollectionAssert.AreEqual(expectedDecrementProbabilities, actualDecrementProbabilities);
 	}
 }
 

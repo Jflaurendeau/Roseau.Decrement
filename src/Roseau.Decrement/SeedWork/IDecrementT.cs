@@ -7,6 +7,7 @@ namespace Roseau.Decrement.SeedWork;
 public interface IDecrement<in TIndividual> : IDecrement
 	where TIndividual : IIndividual
 {
+	DateOnly LastPossibleDecrementDate(TIndividual individual);
 	decimal SurvivalProbability(TIndividual individual, in DateOnly calculationDate, in DateOnly decrementDate);
 	decimal[] SurvivalProbabilities(TIndividual individual, in DateOnly calculationDate, OrderedDates dates);
 	decimal DecrementProbability(TIndividual individual, in DateOnly calculationDate, in DateOnly decrementDate) => 1 - SurvivalProbability(individual, calculationDate, decrementDate);

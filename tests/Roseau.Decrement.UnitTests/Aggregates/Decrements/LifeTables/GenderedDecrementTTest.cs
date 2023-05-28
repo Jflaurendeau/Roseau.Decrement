@@ -6,6 +6,7 @@ using Roseau.Decrement.Aggregates.Individuals;
 using Roseau.Decrement.SeedWork;
 using Roseau.Decrement.UnitTests.AssertExtensions;
 using Roseau.Mathematics;
+using Roseau.Decrement.Common.DecrementBetweenIntegralAgeStrategies;
 
 namespace Roseau.Decrement.UnitTests.Aggregates.Decrements.LifeTables;
 
@@ -22,7 +23,7 @@ public class GenderedDecrementTTest
 	private static DateOnly CalculationDate { get; } = new(2018, 1, 1);
 	private static decimal[][] SurvivalProbabilities { get; } = new decimal[2][];
 	private static decimal[][] DeathProbabilities { get; } = new decimal[2][];
-	private static GenderedDecrement<IGenderedIndividual> Decrement { get; } = new GenderedDecrement<IGenderedIndividual>(DecrementTableMocked.Object, ImprovementMocked.Object, AdjustmentMocked.Object);
+	private static GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy> Decrement { get; } = new GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>(DecrementTableMocked.Object, ImprovementMocked.Object, AdjustmentMocked.Object);
 	private static DateOnly[] SurvivalDates { get; } = new DateOnly[NUMBEROFYEARS];
 
 	[ClassInitialize]
@@ -92,7 +93,7 @@ public class GenderedDecrementTTest
 
 		// Act
 		// Assert
-		Assert.That.DoesNotThrow(() => new GenderedDecrement<IGenderedIndividual>(DecrementTableMocked.Object));
+		Assert.That.DoesNotThrow(() => new GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>(DecrementTableMocked.Object));
 	}
 	[TestMethod]
 	[TestCategory("Constructors")]
@@ -102,7 +103,7 @@ public class GenderedDecrementTTest
 
 		// Act
 		// Assert
-		Assert.That.DoesNotThrow(() => new GenderedDecrement<IGenderedIndividual>(DecrementTableMocked.Object, ImprovementMocked.Object));
+		Assert.That.DoesNotThrow(() => new GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>(DecrementTableMocked.Object, ImprovementMocked.Object));
 	}
 	[TestMethod]
 	[TestCategory("Constructors")]
@@ -112,7 +113,7 @@ public class GenderedDecrementTTest
 
 		// Act
 		// Assert
-		Assert.That.DoesNotThrow(() => new GenderedDecrement<IGenderedIndividual>(DecrementTableMocked.Object, AdjustmentMocked.Object));
+		Assert.That.DoesNotThrow(() => new GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>(DecrementTableMocked.Object, AdjustmentMocked.Object));
 	}
 	[TestMethod]
 	[TestCategory("Constructors")]
@@ -122,7 +123,7 @@ public class GenderedDecrementTTest
 
 		// Act
 		// Assert
-		Assert.That.DoesNotThrow(() => new GenderedDecrement<IGenderedIndividual>(DecrementTableMocked.Object, ImprovementMocked.Object, AdjustmentMocked.Object));
+		Assert.That.DoesNotThrow(() => new GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>(DecrementTableMocked.Object, ImprovementMocked.Object, AdjustmentMocked.Object));
 	}
 	[TestMethod]
 	[TestCategory("Constructors")]
@@ -132,10 +133,10 @@ public class GenderedDecrementTTest
 
 		// Act
 		// Assert
-		Assert.That.DoesNotThrow(() => new GenderedDecrement<IGenderedIndividual>(DecrementTableMocked.Object, ImprovementMocked.Object, AdjustmentMocked.Object, null!));
+		Assert.That.DoesNotThrow(() => new GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>(DecrementTableMocked.Object, ImprovementMocked.Object, AdjustmentMocked.Object, null!));
 	}
 	[TestMethod]
-	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual>.SurvivalUnisexProbability))]
+	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>.SurvivalUnisexProbability))]
 	public void SurvivalUnisexProbability_ManProportionIsLowerThanZero_ThrowsArgumentOutOfRangeException()
 	{
 		// Arrange
@@ -145,7 +146,7 @@ public class GenderedDecrementTTest
 		Assert.ThrowsException<ArgumentOutOfRangeException>(() => Decrement.SurvivalUnisexProbability(ManIndividualMocked.Object, CalculationDate.AddYears(2), CalculationDate, -1));
 	}
 	[TestMethod]
-	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual>.SurvivalUnisexProbability))]
+	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>.SurvivalUnisexProbability))]
 	public void SurvivalUnisexProbability_ManProportionIsHigherThanOne_ThrowsArgumentOutOfRangeException()
 	{
 		// Arrange
@@ -155,7 +156,7 @@ public class GenderedDecrementTTest
 		Assert.ThrowsException<ArgumentOutOfRangeException>(() => Decrement.SurvivalUnisexProbability(ManIndividualMocked.Object, CalculationDate.AddYears(2), CalculationDate, 1.02m));
 	}
 	[TestMethod]
-	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual>.SurvivalUnisexProbability))]
+	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>.SurvivalUnisexProbability))]
 	public void SurvivalUnisexProbability_Man_ManProportionIsExactlyOne_EqualsManSurvivalProbability()
 	{
 		// Arrange
@@ -167,7 +168,7 @@ public class GenderedDecrementTTest
 		Assert.AreEqual(expectedSurvivalUnisexProbability, actualSurvivalUnisexProbability);
 	}
 	[TestMethod]
-	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual>.SurvivalUnisexProbability))]
+	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>.SurvivalUnisexProbability))]
 	public void SurvivalUnisexProbability_Woman_ManProportionIsExactlyOne_EqualsManSurvivalProbability()
 	{
 		// Arrange
@@ -179,7 +180,7 @@ public class GenderedDecrementTTest
 		Assert.AreEqual(expectedSurvivalUnisexProbability, actualSurvivalUnisexProbability);
 	}
 	[TestMethod]
-	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual>.SurvivalUnisexProbability))]
+	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>.SurvivalUnisexProbability))]
 	public void SurvivalUnisexProbability_Man_ManProportionIsExactlyZero_EqualsWomanSurvivalProbability()
 	{
 		// Arrange
@@ -191,7 +192,7 @@ public class GenderedDecrementTTest
 		Assert.AreEqual(expectedSurvivalUnisexProbability, actualSurvivalUnisexProbability);
 	}
 	[TestMethod]
-	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual>.SurvivalUnisexProbability))]
+	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>.SurvivalUnisexProbability))]
 	public void SurvivalUnisexProbability_Woman_ManProportionIsExactlyZero_EqualsWomanSurvivalProbability()
 	{
 		// Arrange
@@ -203,7 +204,7 @@ public class GenderedDecrementTTest
 		Assert.AreEqual(expectedSurvivalUnisexProbability, actualSurvivalUnisexProbability);
 	}
 	[TestMethod]
-	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual>.SurvivalUnisexProbability))]
+	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>.SurvivalUnisexProbability))]
 	public void SurvivalUnisexProbability_DecrementDateBeforeCalculationDate_ThrowsArguementException()
 	{
 		// Arrange
@@ -213,7 +214,7 @@ public class GenderedDecrementTTest
 		Assert.ThrowsException<ArgumentException>(() => Decrement.SurvivalUnisexProbability(ManIndividualMocked.Object, CalculationDate.AddYears(2), CalculationDate, MANPROPORTION));
 	}
 	[TestMethod]
-	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual>.SurvivalUnisexProbability))]
+	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>.SurvivalUnisexProbability))]
 	public void SurvivalUnisexProbability_DateOfBirthIsNotBeforeCalculationDate_ThrowsArguementException()
 	{
 		// Arrange
@@ -223,7 +224,7 @@ public class GenderedDecrementTTest
 		Assert.ThrowsException<ArgumentException>(() => Decrement.SurvivalUnisexProbability(ManIndividualMocked.Object, ManIndividualMocked.Object.DateOfBirth.AddDays(-1), CalculationDate, MANPROPORTION));
 	}
 	[TestMethod]
-	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual>.SurvivalUnisexProbability))]
+	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>.SurvivalUnisexProbability))]
 	public void SurvivalUnisexProbability_ManAndWomanHaveTheirOwnDifferentTable_ReturnsSameValue()
 	{
 		// Arrange
@@ -235,7 +236,7 @@ public class GenderedDecrementTTest
 		Assert.AreEqual(notExpectedSurvivalUnisexProbability, actualSurvivalUnisexProbability);
 	}
 	[TestMethod]
-	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual>.SurvivalUnisexProbability))]
+	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>.SurvivalUnisexProbability))]
 	public void SurvivalUnisexProbability_UnderFirstAge_ReturnFirstValue()
 	{
 		// Arrange
@@ -247,7 +248,7 @@ public class GenderedDecrementTTest
 		Assert.AreEqual(expectedSurvivalUnisexProbability, actualSurvivalUnisexProbability);
 	}
 	[TestMethod]
-	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual>.SurvivalUnisexProbability))]
+	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>.SurvivalUnisexProbability))]
 	public void SurvivalUnisexProbability_OverLastAge_ReturnLastValue()
 	{
 		// Arrange
@@ -259,7 +260,7 @@ public class GenderedDecrementTTest
 		Assert.AreEqual(expectedSurvivalUnisexProbability, actualSurvivalUnisexProbability);
 	}
 	[TestMethod]
-	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual>.SurvivalUnisexProbability))]
+	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>.SurvivalUnisexProbability))]
 	public void SurvivalUnisexProbability_AgeIsInRangeOfTable_ReturnGoodValue()
 	{
 		// Arrange
@@ -271,7 +272,7 @@ public class GenderedDecrementTTest
 		Assert.AreEqual(expectedSurvivalUnisexProbability, actualSurvivalUnisexProbability);
 	}
 	[TestMethod]
-	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual>.SurvivalUnisexProbability))]
+	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>.SurvivalUnisexProbability))]
 	public void SurvivalUnisexProbability_AgeIsInRangeOfTable_CalculationInMiddleOfAYear_DecrementTwoYearsLater_ReturnGoodValue()
 	{
 		// Arrange
@@ -301,7 +302,7 @@ public class GenderedDecrementTTest
 		Assert.AreEqual(expectedSurvivalUnisexProbability, actualSurvivalUnisexProbability);
 	}
 	[TestMethod]
-	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual>.SurvivalUnisexProbabilities))]
+	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>.SurvivalUnisexProbabilities))]
 	public void SurvivalUnisexProbabilities_ManProportionIsLowerThanZero_ThrowsArgumentOutOfRangeException()
 	{
 		// Arrange
@@ -318,7 +319,7 @@ public class GenderedDecrementTTest
 		Assert.ThrowsException<ArgumentOutOfRangeException>(() => Decrement.SurvivalUnisexProbabilities(ManIndividualMocked.Object, CalculationDate.AddYears(2), decrementDates, -1));
 	}
 	[TestMethod]
-	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual>.SurvivalUnisexProbabilities))]
+	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>.SurvivalUnisexProbabilities))]
 	public void SurvivalUnisexProbabilities_ManProportionIsHigherThanOne_ThrowsArgumentOutOfRangeException()
 	{
 		// Arrange
@@ -335,7 +336,7 @@ public class GenderedDecrementTTest
 		Assert.ThrowsException<ArgumentOutOfRangeException>(() => Decrement.SurvivalUnisexProbabilities(ManIndividualMocked.Object, CalculationDate.AddYears(2), decrementDates, 1.02m));
 	}
 	[TestMethod]
-	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual>.SurvivalUnisexProbabilities))]
+	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>.SurvivalUnisexProbabilities))]
 	public void SurvivalUnisexProbabilities_Man_ManProportionIsExactlyOne_ReturnsManProbabilities()
 	{
 		// Arrange
@@ -352,7 +353,7 @@ public class GenderedDecrementTTest
 		Assert.AreEqual(expectedSurvivalUnisexProbabilities, actualSurvivalUnisexProbabilities);
 	}
 	[TestMethod]
-	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual>.SurvivalUnisexProbabilities))]
+	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>.SurvivalUnisexProbabilities))]
 	public void SurvivalUnisexProbabilities_Woman_ManProportionIsExactlyOne_ReturnsManProbabilities()
 	{
 		// Arrange
@@ -369,7 +370,7 @@ public class GenderedDecrementTTest
 		Assert.AreEqual(expectedSurvivalUnisexProbabilities, actualSurvivalUnisexProbabilities);
 	}
 	[TestMethod]
-	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual>.SurvivalUnisexProbabilities))]
+	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>.SurvivalUnisexProbabilities))]
 	public void SurvivalUnisexProbabilities_Man_ManProportionIsExactlyZero_ReturnsWomanProbabilities()
 	{
 		// Arrange
@@ -386,7 +387,7 @@ public class GenderedDecrementTTest
 		Assert.AreEqual(expectedSurvivalUnisexProbabilities, actualSurvivalUnisexProbabilities);
 	}
 	[TestMethod]
-	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual>.SurvivalUnisexProbabilities))]
+	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>.SurvivalUnisexProbabilities))]
 	public void SurvivalUnisexProbabilities_Woman_ManProportionIsExactlyZero_ReturnsWomanProbabilities()
 	{
 		// Arrange
@@ -403,7 +404,7 @@ public class GenderedDecrementTTest
 		Assert.AreEqual(expectedSurvivalUnisexProbabilities, actualSurvivalUnisexProbabilities);
 	}
 	[TestMethod]
-	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual>.SurvivalUnisexProbabilities))]
+	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>.SurvivalUnisexProbabilities))]
 	public void SurvivalUnisexProbabilities_FirstDecrementDateBeforeCalculationDate_ThrowsArguementException()
 	{
 		// Arrange
@@ -417,7 +418,7 @@ public class GenderedDecrementTTest
 		Assert.ThrowsException<ArgumentException>(() => Decrement.SurvivalUnisexProbabilities(ManIndividualMocked.Object, decrementDates[0].AddDays(1), decrementDates, MANPROPORTION));
 	}
 	[TestMethod]
-	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual>.SurvivalUnisexProbabilities))]
+	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>.SurvivalUnisexProbabilities))]
 	public void SurvivalUnisexProbabilities_DateOfBirthIsNotBeforeCalculationDate_ThrowsArguementException()
 	{
 		// Arrange
@@ -431,7 +432,7 @@ public class GenderedDecrementTTest
 		Assert.ThrowsException<ArgumentException>(() => Decrement.SurvivalUnisexProbabilities(ManIndividualMocked.Object, calculationDate, decrementDates, MANPROPORTION));
 	}
 	[TestMethod]
-	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual>.SurvivalUnisexProbabilities))]
+	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>.SurvivalUnisexProbabilities))]
 	public void SurvivalUnisexProbabilities_Man_CalculationDateInMiddleOfAYear_DecrementEachMonth_ReturnGoodValue()
 	{
 		// Arrange
@@ -463,7 +464,7 @@ public class GenderedDecrementTTest
 			Assert.AreEqual(expectedSurvivalUnisexProbabilities[i], actualSurvivalUnisexProbabilities[i], 30 * Maths.Epsilon);
 	}
 	[TestMethod]
-	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual>.SurvivalUnisexProbabilities))]
+	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>.SurvivalUnisexProbabilities))]
 	public void SurvivalUnisexProbabilities_Woman_CalculationDateInMiddleOfAYear_DecrementEachMonth_ReturnGoodValue()
 	{
 		// Arrange
@@ -495,7 +496,7 @@ public class GenderedDecrementTTest
 			Assert.AreEqual(expectedSurvivalUnisexProbabilities[i], actualSurvivalUnisexProbabilities[i], 30 * Maths.Epsilon);
 	}
 	[TestMethod]
-	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual>.SurvivalUnisexProbabilities))]
+	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>.SurvivalUnisexProbabilities))]
 	public void SurvivalUnisexProbabilities_CallingForSameSurvivalUnisexProbabilities_ReturnFromCacheSameObject()
 	{
 		// Arrange
@@ -512,7 +513,7 @@ public class GenderedDecrementTTest
 		Assert.AreEqual(expectedSurvivalUnisexProbabilities, actualSurvivalUnisexProbabilities);
 	}
 	[TestMethod]
-	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual>.DecrementUnisexProbabilities))]
+	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>.DecrementUnisexProbabilities))]
 	public void DecrementUnisexProbabilities_ManProportionIsLowerThanZero_ThrowsArgumentOutOfRangeException()
 	{
 		// Arrange
@@ -529,7 +530,7 @@ public class GenderedDecrementTTest
 		Assert.ThrowsException<ArgumentOutOfRangeException>(() => Decrement.DecrementUnisexProbabilities(ManIndividualMocked.Object, CalculationDate.AddYears(2), decrementDates, -1));
 	}
 	[TestMethod]
-	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual>.DecrementUnisexProbabilities))]
+	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>.DecrementUnisexProbabilities))]
 	public void DecrementUnisexProbabilities_ManProportionIsHigherThanOne_ThrowsArgumentOutOfRangeException()
 	{
 		// Arrange
@@ -546,7 +547,7 @@ public class GenderedDecrementTTest
 		Assert.ThrowsException<ArgumentOutOfRangeException>(() => Decrement.DecrementUnisexProbabilities(ManIndividualMocked.Object, CalculationDate.AddYears(2), decrementDates, 1.02m));
 	}
 	[TestMethod]
-	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual>.DecrementUnisexProbabilities))]
+	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>.DecrementUnisexProbabilities))]
 	public void DecrementUnisexProbabilities_Man_ManProportionIsExactlyOne_ReturnsManProbabilities()
 	{
 		// Arrange
@@ -563,7 +564,7 @@ public class GenderedDecrementTTest
 		Assert.AreEqual(expectedSurvivalUnisexProbabilities, actualSurvivalUnisexProbabilities);
 	}
 	[TestMethod]
-	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual>.DecrementUnisexProbabilities))]
+	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>.DecrementUnisexProbabilities))]
 	public void DecrementUnisexProbabilities_Woman_ManProportionIsExactlyOne_ReturnsManProbabilities()
 	{
 		// Arrange
@@ -580,7 +581,7 @@ public class GenderedDecrementTTest
 		Assert.AreEqual(expectedSurvivalUnisexProbabilities, actualSurvivalUnisexProbabilities);
 	}
 	[TestMethod]
-	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual>.DecrementUnisexProbabilities))]
+	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>.DecrementUnisexProbabilities))]
 	public void DecrementUnisexProbabilities_Man_ManProportionIsExactlyZero_ReturnsWomanProbabilities()
 	{
 		// Arrange
@@ -597,7 +598,7 @@ public class GenderedDecrementTTest
 		Assert.AreEqual(expectedSurvivalUnisexProbabilities, actualSurvivalUnisexProbabilities);
 	}
 	[TestMethod]
-	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual>.DecrementUnisexProbabilities))]
+	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>.DecrementUnisexProbabilities))]
 	public void DecrementUnisexProbabilities_Woman_ManProportionIsExactlyZero_ReturnsWomanProbabilities()
 	{
 		// Arrange
@@ -614,7 +615,7 @@ public class GenderedDecrementTTest
 		Assert.AreEqual(expectedSurvivalUnisexProbabilities, actualSurvivalUnisexProbabilities);
 	}
 	[TestMethod]
-	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual>.DecrementUnisexProbabilities))]
+	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>.DecrementUnisexProbabilities))]
 	public void DecrementUnisexProbabilities_Man_CalculationDateInMiddleOfAYear_DecrementEachMonth_ReturnGoodValue()
 	{
 		// Arrange
@@ -622,7 +623,7 @@ public class GenderedDecrementTTest
 		IDateArrayStrategy dateArrayStrategy = new FirstDayOfEveryMonthStrategy();
 		OrderedDates decrementDates = new(dateArrayStrategy, calculationDate, calculationDate.AddYears(2));
 		decimal[] expectedDecrementProbabilities = new decimal[decrementDates.Count];
-		var newDecrement = new GenderedDecrement<IGenderedIndividual>(DecrementTableMocked.Object, ImprovementMocked.Object, AdjustmentMocked.Object);
+		var newDecrement = new GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>(DecrementTableMocked.Object, ImprovementMocked.Object, AdjustmentMocked.Object);
 
 		// Act
 		var actualDecrementProbabilities = newDecrement.DecrementUnisexProbabilities(ManIndividualMocked.Object, calculationDate, decrementDates, MANPROPORTION);
@@ -635,7 +636,7 @@ public class GenderedDecrementTTest
 		CollectionAssert.AreEqual(expectedSurvivalUnisexProbabilities, actualDecrementProbabilities);
 	}
 	[TestMethod]
-	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual>.DecrementUnisexProbabilities))]
+	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>.DecrementUnisexProbabilities))]
 	public void DecrementUnisexProbabilities_Woman_CalculationDateInMiddleOfAYear_DecrementEachMonth_ReturnGoodValue()
 	{
 		// Arrange
@@ -643,7 +644,7 @@ public class GenderedDecrementTTest
 		IDateArrayStrategy dateArrayStrategy = new FirstDayOfEveryMonthStrategy();
 		OrderedDates decrementDates = new(dateArrayStrategy, calculationDate, calculationDate.AddYears(2));
 		decimal[] expectedDecrementProbabilities = new decimal[decrementDates.Count];
-		var newDecrement = new GenderedDecrement<IGenderedIndividual>(DecrementTableMocked.Object, ImprovementMocked.Object, AdjustmentMocked.Object);
+		var newDecrement = new GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>(DecrementTableMocked.Object, ImprovementMocked.Object, AdjustmentMocked.Object);
 
 		// Act
 		var actualDecrementProbabilities = newDecrement.DecrementUnisexProbabilities(WomanIndividualMocked.Object, calculationDate, decrementDates, MANPROPORTION);
