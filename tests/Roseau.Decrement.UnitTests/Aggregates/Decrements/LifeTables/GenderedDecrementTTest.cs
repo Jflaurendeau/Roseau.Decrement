@@ -23,7 +23,7 @@ public class GenderedDecrementTTest
 	private static DateOnly CalculationDate { get; } = new(2018, 1, 1);
 	private static decimal[][] SurvivalProbabilities { get; } = new decimal[2][];
 	private static decimal[][] DeathProbabilities { get; } = new decimal[2][];
-	private static GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy> Decrement { get; } = new GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>(DecrementTableMocked.Object, ImprovementMocked.Object, AdjustmentMocked.Object);
+	private static GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy> Decrement { get; } = new GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>(new UniformDeathDistributionStrategy(), DecrementTableMocked.Object, ImprovementMocked.Object, AdjustmentMocked.Object);
 	private static DateOnly[] SurvivalDates { get; } = new DateOnly[NUMBEROFYEARS];
 
 	[ClassInitialize]
@@ -93,7 +93,7 @@ public class GenderedDecrementTTest
 
 		// Act
 		// Assert
-		Assert.That.DoesNotThrow(() => new GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>(DecrementTableMocked.Object));
+		Assert.That.DoesNotThrow(() => new GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>(new UniformDeathDistributionStrategy(), DecrementTableMocked.Object));
 	}
 	[TestMethod]
 	[TestCategory("Constructors")]
@@ -103,7 +103,7 @@ public class GenderedDecrementTTest
 
 		// Act
 		// Assert
-		Assert.That.DoesNotThrow(() => new GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>(DecrementTableMocked.Object, ImprovementMocked.Object));
+		Assert.That.DoesNotThrow(() => new GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>(new UniformDeathDistributionStrategy(), DecrementTableMocked.Object, ImprovementMocked.Object));
 	}
 	[TestMethod]
 	[TestCategory("Constructors")]
@@ -113,7 +113,7 @@ public class GenderedDecrementTTest
 
 		// Act
 		// Assert
-		Assert.That.DoesNotThrow(() => new GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>(DecrementTableMocked.Object, AdjustmentMocked.Object));
+		Assert.That.DoesNotThrow(() => new GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>(new UniformDeathDistributionStrategy(), DecrementTableMocked.Object, AdjustmentMocked.Object));
 	}
 	[TestMethod]
 	[TestCategory("Constructors")]
@@ -123,7 +123,7 @@ public class GenderedDecrementTTest
 
 		// Act
 		// Assert
-		Assert.That.DoesNotThrow(() => new GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>(DecrementTableMocked.Object, ImprovementMocked.Object, AdjustmentMocked.Object));
+		Assert.That.DoesNotThrow(() => new GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>(new UniformDeathDistributionStrategy(), DecrementTableMocked.Object, ImprovementMocked.Object, AdjustmentMocked.Object));
 	}
 	[TestMethod]
 	[TestCategory("Constructors")]
@@ -133,7 +133,7 @@ public class GenderedDecrementTTest
 
 		// Act
 		// Assert
-		Assert.That.DoesNotThrow(() => new GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>(DecrementTableMocked.Object, ImprovementMocked.Object, AdjustmentMocked.Object, null!));
+		Assert.That.DoesNotThrow(() => new GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>(new UniformDeathDistributionStrategy(), DecrementTableMocked.Object, ImprovementMocked.Object, AdjustmentMocked.Object, null!));
 	}
 	[TestMethod]
 	[TestCategory(nameof(GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>.SurvivalUnisexProbability))]
@@ -291,9 +291,9 @@ public class GenderedDecrementTTest
 				.Returns(DeathProbabilities[(int)WomanIndividualMocked.Object.Gender][4]);
 
 		// Act
-		var SurvivalUnisexProbabilityYear1 = IDecrement.UniformSurvivalDistribution(deathRateYear1, calculationDate, calculationDate.FirstDayOfFollowingYear());
+		var SurvivalUnisexProbabilityYear1 = IDecrement.UniformSurvivalDistribution(calculationDate, calculationDate.FirstDayOfFollowingYear(), deathRateYear1);
 		var SurvivalUnisexProbabilityYear2 = 1 - deathRateYear2;
-		var SurvivalUnisexProbabilityYear3 = IDecrement.UniformSurvivalDistribution(deathRateYear3, decrementDate.FirstDayOfTheYear(), decrementDate);
+		var SurvivalUnisexProbabilityYear3 = IDecrement.UniformSurvivalDistribution(decrementDate.FirstDayOfTheYear(), decrementDate, deathRateYear3);
 
 		var expectedSurvivalUnisexProbability = SurvivalUnisexProbabilityYear1 * SurvivalUnisexProbabilityYear2 * SurvivalUnisexProbabilityYear3;
 		var actualSurvivalUnisexProbability = Decrement.SurvivalUnisexProbability(ManIndividualMocked.Object, calculationDate, decrementDate, MANPROPORTION);
@@ -623,7 +623,7 @@ public class GenderedDecrementTTest
 		IDateArrayStrategy dateArrayStrategy = new FirstDayOfEveryMonthStrategy();
 		OrderedDates decrementDates = new(dateArrayStrategy, calculationDate, calculationDate.AddYears(2));
 		decimal[] expectedDecrementProbabilities = new decimal[decrementDates.Count];
-		var newDecrement = new GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>(DecrementTableMocked.Object, ImprovementMocked.Object, AdjustmentMocked.Object);
+		var newDecrement = new GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>(new UniformDeathDistributionStrategy(), DecrementTableMocked.Object, ImprovementMocked.Object, AdjustmentMocked.Object);
 
 		// Act
 		var actualDecrementProbabilities = newDecrement.DecrementUnisexProbabilities(ManIndividualMocked.Object, calculationDate, decrementDates, MANPROPORTION);
@@ -644,7 +644,7 @@ public class GenderedDecrementTTest
 		IDateArrayStrategy dateArrayStrategy = new FirstDayOfEveryMonthStrategy();
 		OrderedDates decrementDates = new(dateArrayStrategy, calculationDate, calculationDate.AddYears(2));
 		decimal[] expectedDecrementProbabilities = new decimal[decrementDates.Count];
-		var newDecrement = new GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>(DecrementTableMocked.Object, ImprovementMocked.Object, AdjustmentMocked.Object);
+		var newDecrement = new GenderedDecrement<IGenderedIndividual, UniformDeathDistributionStrategy>(new UniformDeathDistributionStrategy(), DecrementTableMocked.Object, ImprovementMocked.Object, AdjustmentMocked.Object);
 
 		// Act
 		var actualDecrementProbabilities = newDecrement.DecrementUnisexProbabilities(WomanIndividualMocked.Object, calculationDate, decrementDates, MANPROPORTION);

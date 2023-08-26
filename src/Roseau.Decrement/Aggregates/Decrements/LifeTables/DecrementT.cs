@@ -5,14 +5,14 @@ using Roseau.Decrement.Common.DecrementBetweenIntegralAgeStrategies;
 using Roseau.Decrement.SeedWork;
 namespace Roseau.Decrement.Aggregates.Decrements.LifeTables;
 
-public class Decrement<TIndividual, TDecrementBetweenIntegralAge> : IDecrement<TIndividual>, IDecrementBetweenIntegralAge<TDecrementBetweenIntegralAge>
+public class Decrement<TIndividual, TDecrementBetweenIntegralAge> : IDecrementBetweenIntegralAge<TIndividual, TDecrementBetweenIntegralAge>
 	where TIndividual : IIndividual
-	where TDecrementBetweenIntegralAge : IDecrementBetweenIntegralAgeStrategy, new()
+	where TDecrementBetweenIntegralAge : IDecrementBetweenIntegralAgeStrategy
 {
-	private readonly TDecrementBetweenIntegralAge _DecrementBetweenIntegralAge = new();
 	
 	#region Fields
 	private const int TIMESPAN = 300;
+	private readonly TDecrementBetweenIntegralAge _DecrementBetweenIntegralAge;
 	protected readonly IDecrementTable<TIndividual> _Table;
 	protected readonly IImprovement<TIndividual> _ImprovementScale;
 	protected readonly IAdjustment<TIndividual> _Adjustment;
@@ -20,14 +20,18 @@ public class Decrement<TIndividual, TDecrementBetweenIntegralAge> : IDecrement<T
 	#endregion
 
 	#region Constructors
-	public Decrement(IDecrementTable<TIndividual> table) : this(table, default!, default!, default!) {	}
-	public Decrement(IDecrementTable<TIndividual> table, IImprovement<TIndividual> improvementScale) : this(table, improvementScale, default!, default!) {	}
-	public Decrement(IDecrementTable<TIndividual> table, IAdjustment<TIndividual> adjustment) : this(table, default!, adjustment, default!) {	}
-	public Decrement(IDecrementTable<TIndividual> table, IImprovement<TIndividual> improvementScale, IAdjustment<TIndividual> adjustment) : this(table, improvementScale, adjustment, default!) { }
-	public Decrement(IDecrementTable<TIndividual> table, IImprovement<TIndividual> improvementScale, IAdjustment<TIndividual> adjustment, IMemoryCache memoryCache)
+	public Decrement(TDecrementBetweenIntegralAge decrementBetweenIntegralAge, IDecrementTable<TIndividual> table) : this(decrementBetweenIntegralAge, table, default!, default!, default!) {	}
+	public Decrement(TDecrementBetweenIntegralAge decrementBetweenIntegralAge, IDecrementTable<TIndividual> table, IImprovement<TIndividual> improvementScale) : this(decrementBetweenIntegralAge, table, improvementScale, default!, default!) {	}
+	public Decrement(TDecrementBetweenIntegralAge decrementBetweenIntegralAge, IDecrementTable<TIndividual> table, IAdjustment<TIndividual> adjustment) : this(decrementBetweenIntegralAge, table, default!, adjustment, default!) {	}
+	public Decrement(TDecrementBetweenIntegralAge decrementBetweenIntegralAge, IDecrementTable<TIndividual> table, IImprovement<TIndividual> improvementScale, IAdjustment<TIndividual> adjustment) : this(decrementBetweenIntegralAge, table, improvementScale, adjustment, default!) { }
+	public Decrement(TDecrementBetweenIntegralAge decrementBetweenIntegralAge, IDecrementTable<TIndividual> table, IImprovement<TIndividual> improvementScale, IAdjustment<TIndividual> adjustment, IMemoryCache memoryCache)
 	{
+		if (decrementBetweenIntegralAge is null)
+			throw new ArgumentNullException(nameof(decrementBetweenIntegralAge));
+		_DecrementBetweenIntegralAge = decrementBetweenIntegralAge;
 		if (table is null)
 			throw new ArgumentNullException(nameof(table));
+
 		_Table = table;
 		_ImprovementScale = improvementScale ?? IImprovement<TIndividual>.Default;
 		_Adjustment = adjustment ?? IAdjustment<TIndividual>.Default;
@@ -42,7 +46,7 @@ public class Decrement<TIndividual, TDecrementBetweenIntegralAge> : IDecrement<T
 	protected static MemoryCacheEntryOptions GetMemoryCacheEntryOptions() => new MemoryCacheEntryOptions().SetSize(1)
 																								 .SetSlidingExpiration(TimeSpan.FromSeconds(TIMESPAN))
 																								 .SetPriority(CacheItemPriority.Low);
-	protected decimal DecrementRate(TIndividual individual, in DateOnly firstDate)
+	public decimal DecrementRate(TIndividual individual, in DateOnly firstDate)
 	{
 		decimal deathProbability = _Table.GetRate(individual, firstDate);
 		if (deathProbability.Equals(Decimal.One))
@@ -53,7 +57,7 @@ public class Decrement<TIndividual, TDecrementBetweenIntegralAge> : IDecrement<T
 		return adjustmentFactor * deathProbability * improvementFactor;
 	}
 	private decimal SurvivalBetweenIntegerAge(TIndividual individual, in DateOnly firstDate, in DateOnly secondDate)
-		=> 1 - DecrementBetweenIntegralAge.DecrementProbability(DecrementRate(individual, firstDate), firstDate, secondDate);
+		=> 1 - DecrementBetweenIntegralAge.DecrementProbability(firstDate, secondDate, DecrementRate(individual, firstDate));
 	protected decimal YearlySurvival(TIndividual individual, in DateOnly decrementDate)
 		=> 1 - DecrementRate(individual, decrementDate);
 	protected decimal GetSurvivalProbability(TIndividual individual, in DateOnly calculationDate, in DateOnly decrementDate)

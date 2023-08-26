@@ -17,4 +17,8 @@
     </PackageReference>
   </ItemGroup>
 
+	<ItemGroup>
+		<InternalsVisibleTo Include="$(AssemblyName).UnitTests"/>
+	</ItemGroup>
+
 </Project>

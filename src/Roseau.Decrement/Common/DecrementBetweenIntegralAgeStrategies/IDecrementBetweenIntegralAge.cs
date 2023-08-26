@@ -1,7 +1,11 @@
-﻿namespace Roseau.Decrement.Common.DecrementBetweenIntegralAgeStrategies;
+﻿using Roseau.Decrement.Aggregates.Individuals;
+using Roseau.Decrement.SeedWork;
 
-public interface IDecrementBetweenIntegralAge<out TDecrementBetweenIntegralAge>
-	where TDecrementBetweenIntegralAge : IDecrementBetweenIntegralAgeStrategy, new()
+namespace Roseau.Decrement.Common.DecrementBetweenIntegralAgeStrategies;
+
+public interface IDecrementBetweenIntegralAge<in TIndividual, out TDecrementBetweenIntegralAge> : IDecrement<TIndividual>
+	where TIndividual : IIndividual
+	where TDecrementBetweenIntegralAge : IDecrementBetweenIntegralAgeStrategy
 {
 	public TDecrementBetweenIntegralAge DecrementBetweenIntegralAge { get; }
 }

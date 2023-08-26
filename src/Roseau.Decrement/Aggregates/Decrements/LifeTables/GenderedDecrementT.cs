@@ -9,14 +9,14 @@ namespace Roseau.Decrement.Aggregates.Decrements.LifeTables;
 
 public class GenderedDecrement<TGenderedIndividual, TDecrementBetweenIntegralAge> : Decrement<TGenderedIndividual, TDecrementBetweenIntegralAge>, IUnisexDecrement<TGenderedIndividual>
 	where TGenderedIndividual : IGenderedIndividual
-	where TDecrementBetweenIntegralAge : IDecrementBetweenIntegralAgeStrategy, new()
+	where TDecrementBetweenIntegralAge : IDecrementBetweenIntegralAgeStrategy
 {
 	#region Constructors
-	public GenderedDecrement(IDecrementTable<TGenderedIndividual> table) : base(table, default!, default!, default!) { }
-	public GenderedDecrement(IDecrementTable<TGenderedIndividual> table, IImprovement<TGenderedIndividual> improvementScale) : base(table, improvementScale, default!, default!) { }
-	public GenderedDecrement(IDecrementTable<TGenderedIndividual> table, IAdjustment<TGenderedIndividual> adjustment) : base(table, default!, adjustment, default!) { }
-	public GenderedDecrement(IDecrementTable<TGenderedIndividual> table, IImprovement<TGenderedIndividual> improvementScale, IAdjustment<TGenderedIndividual> adjustment) : base(table, improvementScale, adjustment, default!) { }
-	public GenderedDecrement(IDecrementTable<TGenderedIndividual> table, IImprovement<TGenderedIndividual> improvementScale, IAdjustment<TGenderedIndividual> adjustment, IMemoryCache memoryCache) : base(table, improvementScale, adjustment, memoryCache) { }
+	public GenderedDecrement(TDecrementBetweenIntegralAge decrementBetweenIntegralAge, IDecrementTable<TGenderedIndividual> table) : base(decrementBetweenIntegralAge, table, default!, default!, default!) { }
+	public GenderedDecrement(TDecrementBetweenIntegralAge decrementBetweenIntegralAge, IDecrementTable<TGenderedIndividual> table, IImprovement<TGenderedIndividual> improvementScale) : base(decrementBetweenIntegralAge, table, improvementScale, default!, default!) { }
+	public GenderedDecrement(TDecrementBetweenIntegralAge decrementBetweenIntegralAge, IDecrementTable<TGenderedIndividual> table, IAdjustment<TGenderedIndividual> adjustment) : base(decrementBetweenIntegralAge, table, default!, adjustment, default!) { }
+	public GenderedDecrement(TDecrementBetweenIntegralAge decrementBetweenIntegralAge, IDecrementTable<TGenderedIndividual> table, IImprovement<TGenderedIndividual> improvementScale, IAdjustment<TGenderedIndividual> adjustment) : base(decrementBetweenIntegralAge, table, improvementScale, adjustment, default!) { }
+	public GenderedDecrement(TDecrementBetweenIntegralAge decrementBetweenIntegralAge, IDecrementTable<TGenderedIndividual> table, IImprovement<TGenderedIndividual> improvementScale, IAdjustment<TGenderedIndividual> adjustment, IMemoryCache memoryCache) : base(decrementBetweenIntegralAge, table, improvementScale, adjustment, memoryCache) { }
 	#endregion
 
 	private delegate decimal DecrementOrSurvivalUnisexProbabilityIn(TGenderedIndividual manIndividual, TGenderedIndividual womanIndividual, in DateOnly calculationDate, in DateOnly decrementDate, in decimal manProportion);
@@ -29,7 +29,7 @@ public class GenderedDecrement<TGenderedIndividual, TDecrementBetweenIntegralAge
 	{
 		decimal manDecrement = DecrementRate(manIndividual, firstDate);
 		decimal womanDecrement = DecrementRate(womanIndividual, firstDate);
-		return 1 - DecrementBetweenIntegralAge.DecrementProbability(manDecrement * manProportion + (1 - manProportion) * womanDecrement, firstDate, secondDate);
+		return 1 - DecrementBetweenIntegralAge.DecrementProbability(firstDate, secondDate, manDecrement * manProportion + (1 - manProportion) * womanDecrement);
 	}
 	private decimal YearlyUnisexSurvival(TGenderedIndividual manIndividual, TGenderedIndividual womanIndividual, in DateOnly decrementDate, in decimal manProportion)
 	{

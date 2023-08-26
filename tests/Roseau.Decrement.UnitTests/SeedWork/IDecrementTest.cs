@@ -16,7 +16,7 @@ public class IDecrementTest
 		DateOnly secondDate = firstDate.AddYears(1);
 		// Act
 		// Assert
-		Assert.ThrowsException<ArgumentException>(() => IDecrement.UniformDecrementDistribution(0.5m, secondDate, firstDate));
+		Assert.ThrowsException<ArgumentException>(() => IDecrement.UniformDecrementDistribution(secondDate, firstDate, 0.5m));
 	}
 	[TestMethod]
 	[TestCategory(nameof(IDecrement.UniformDecrementDistribution))]
@@ -35,7 +35,7 @@ public class IDecrementTest
 		decimal expected = deathSecondPartOfYear / (1 - deathFirstPartOfYear);
 
 		// Assert
-		Assert.AreEqual(expected, IDecrement.UniformDecrementDistribution(decrementProbability, firstDate, secondDate), Maths.Epsilon);
+		Assert.AreEqual(expected, IDecrement.UniformDecrementDistribution(firstDate, secondDate, decrementProbability), Maths.Epsilon);
 	}
 	[TestMethod]
 	[TestCategory(nameof(IDecrement.UniformDecrementDistribution))]
@@ -54,7 +54,7 @@ public class IDecrementTest
 		decimal expected = deathSecondPartOfYear / (1 - deathFirstPartOfYear);
 
 		// Assert
-		Assert.AreEqual(expected, IDecrement.UniformDecrementDistribution(decrementProbability, firstDate, secondDate), Maths.Epsilon);
+		Assert.AreEqual(expected, IDecrement.UniformDecrementDistribution(firstDate, secondDate, decrementProbability), Maths.Epsilon);
 	}
 	[TestMethod]
 	[TestCategory(nameof(IDecrement.UniformSurvivalDistribution))]
@@ -65,7 +65,7 @@ public class IDecrementTest
 		DateOnly secondDate = firstDate.AddYears(1);
 		// Act
 		// Assert
-		Assert.ThrowsException<ArgumentException>(() => IDecrement.UniformSurvivalDistribution(0.5m, secondDate, firstDate));
+		Assert.ThrowsException<ArgumentException>(() => IDecrement.UniformSurvivalDistribution(secondDate, firstDate, 0.5m));
 	}
 	[TestMethod]
 	[TestCategory(nameof(IDecrement.UniformSurvivalDistribution))]
@@ -84,7 +84,7 @@ public class IDecrementTest
 		decimal expected = deathSecondPartOfYear / (1 - deathFirstPartOfYear);
 
 		// Assert
-		Assert.AreEqual(1 - expected, IDecrement.UniformSurvivalDistribution(decrementProbability, firstDate, secondDate), Maths.Epsilon);
+		Assert.AreEqual(1 - expected, IDecrement.UniformSurvivalDistribution(firstDate, secondDate, decrementProbability), Maths.Epsilon);
 	}
 	[TestMethod]
 	[TestCategory(nameof(IDecrement.UniformSurvivalDistribution))]
@@ -103,7 +103,7 @@ public class IDecrementTest
 		decimal expected = deathSecondPartOfYear / (1 - deathFirstPartOfYear);
 
 		// Assert
-		Assert.AreEqual(1 - expected, IDecrement.UniformSurvivalDistribution(decrementProbability, firstDate, secondDate), Maths.Epsilon);
+		Assert.AreEqual(1 - expected, IDecrement.UniformSurvivalDistribution(firstDate, secondDate, decrementProbability), Maths.Epsilon);
 	}
 	[TestMethod]
 	[TestCategory(nameof(IDecrement.ConstantForceDecrement))]
@@ -114,7 +114,7 @@ public class IDecrementTest
 		DateOnly secondDate = firstDate.AddYears(1);
 		// Act
 		// Assert
-		Assert.ThrowsException<ArgumentException>(() => IDecrement.ConstantForceDecrement(0.5m, secondDate, firstDate));
+		Assert.ThrowsException<ArgumentException>(() => IDecrement.ConstantForceDecrement(secondDate, firstDate, 0.5m));
 	}
 	[TestMethod]
 	[TestCategory(nameof(IDecrement.ConstantForceDecrement))]
@@ -130,7 +130,7 @@ public class IDecrementTest
 		decimal expected = Maths.Pow(1 - decrementProbability, timeSecondPartOfYear);
 
 		// Assert
-		Assert.AreEqual(1 - expected, IDecrement.ConstantForceDecrement(decrementProbability, firstDate, secondDate), Maths.Epsilon);
+		Assert.AreEqual(1 - expected, IDecrement.ConstantForceDecrement(firstDate, secondDate, decrementProbability), Maths.Epsilon);
 	}
 	[TestMethod]
 	[TestCategory(nameof(IDecrement.ConstantForceDecrement))]
@@ -146,7 +146,7 @@ public class IDecrementTest
 		decimal expected = Maths.Pow(1 - decrementProbability, timeSecondPartOfYear);
 
 		// Assert
-		Assert.AreEqual(1 - expected, IDecrement.ConstantForceDecrement(decrementProbability, firstDate, secondDate), Maths.Epsilon);
+		Assert.AreEqual(1 - expected, IDecrement.ConstantForceDecrement(firstDate, secondDate, decrementProbability), Maths.Epsilon);
 	}
 	[TestMethod]
 	[TestCategory(nameof(IDecrement.ConstantForceSurvival))]
@@ -157,7 +157,7 @@ public class IDecrementTest
 		DateOnly secondDate = firstDate.AddYears(1);
 		// Act
 		// Assert
-		Assert.ThrowsException<ArgumentException>(() => IDecrement.ConstantForceSurvival(0.5m, secondDate, firstDate));
+		Assert.ThrowsException<ArgumentException>(() => IDecrement.ConstantForceSurvival(secondDate, firstDate, 0.5m));
 	}
 	[TestMethod]
 	[TestCategory(nameof(IDecrement.ConstantForceSurvival))]
@@ -173,7 +173,7 @@ public class IDecrementTest
 		decimal expected = Maths.Pow(1 - decrementProbability, timeSecondPartOfYear);
 
 		// Assert
-		Assert.AreEqual(expected, IDecrement.ConstantForceSurvival(decrementProbability, firstDate, secondDate), Maths.Epsilon);
+		Assert.AreEqual(expected, IDecrement.ConstantForceSurvival(firstDate, secondDate, decrementProbability), Maths.Epsilon);
 	}
 	[TestMethod]
 	[TestCategory(nameof(IDecrement.ConstantForceSurvival))]
@@ -189,6 +189,6 @@ public class IDecrementTest
 		decimal expected = Maths.Pow(1 - decrementProbability, timeSecondPartOfYear);
 
 		// Assert
-		Assert.AreEqual(expected, IDecrement.ConstantForceSurvival(decrementProbability, firstDate, secondDate), Maths.Epsilon);
+		Assert.AreEqual(expected, IDecrement.ConstantForceSurvival(firstDate, secondDate, decrementProbability), Maths.Epsilon);
 	}
 }

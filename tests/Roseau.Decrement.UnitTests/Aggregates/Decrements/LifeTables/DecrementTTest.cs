@@ -23,7 +23,7 @@ public class DecrementTTest
 	private static DateOnly CalculationDate { get; } = new(2018, 1, 1);
 	private static decimal[][] SurvivalProbabilities { get; } = new decimal[2][];
 	private static decimal[][] DeathProbabilities { get; } = new decimal[2][];
-	private static Decrement<IGenderedIndividual, UniformDeathDistributionStrategy> Decrement { get; }  = new Decrement<IGenderedIndividual, UniformDeathDistributionStrategy>(DecrementTableMocked.Object, ImprovementMocked.Object, AdjustmentMocked.Object);
+	private static Decrement<IGenderedIndividual, UniformDeathDistributionStrategy> Decrement { get; }  = new Decrement<IGenderedIndividual, UniformDeathDistributionStrategy>(new UniformDeathDistributionStrategy(), DecrementTableMocked.Object, ImprovementMocked.Object, AdjustmentMocked.Object);
 	private static DateOnly[] SurvivalDates { get; } = new DateOnly[NUMBEROFYEARS];
 
 	[ClassInitialize]
@@ -91,7 +91,7 @@ public class DecrementTTest
 
 		// Act
 		// Assert
-		Assert.ThrowsException<ArgumentNullException>(() => new Decrement<IGenderedIndividual, UniformDeathDistributionStrategy>(null!));
+		Assert.ThrowsException<ArgumentNullException>(() => new Decrement<IGenderedIndividual, UniformDeathDistributionStrategy>(new UniformDeathDistributionStrategy(), null!));
 	}
 	[TestMethod]
 	[TestCategory("Constructors")]
@@ -101,7 +101,7 @@ public class DecrementTTest
 
 		// Act
 		// Assert
-		Assert.That.DoesNotThrow(() => new Decrement<IGenderedIndividual, UniformDeathDistributionStrategy>(DecrementTableMocked.Object, ImprovementMocked.Object));
+		Assert.That.DoesNotThrow(() => new Decrement<IGenderedIndividual, UniformDeathDistributionStrategy>(new UniformDeathDistributionStrategy(), DecrementTableMocked.Object, ImprovementMocked.Object));
 	}
 	[TestMethod]
 	[TestCategory("Constructors")]
@@ -111,7 +111,7 @@ public class DecrementTTest
 
 		// Act
 		// Assert
-		Assert.That.DoesNotThrow(() => new Decrement<IGenderedIndividual, UniformDeathDistributionStrategy>(DecrementTableMocked.Object, AdjustmentMocked.Object));
+		Assert.That.DoesNotThrow(() => new Decrement<IGenderedIndividual, UniformDeathDistributionStrategy>(new UniformDeathDistributionStrategy(), DecrementTableMocked.Object, AdjustmentMocked.Object));
 	}
 	[TestMethod]
 	[TestCategory(nameof(Decrement<IGenderedIndividual, UniformDeathDistributionStrategy>.SurvivalProbability))]
@@ -185,9 +185,9 @@ public class DecrementTTest
 				.Returns(deathRateYear3);
 
 		// Act
-		var survivalProbabilityYear1 = IDecrement.UniformSurvivalDistribution(deathRateYear1, calculationDate, calculationDate.FirstDayOfFollowingYear());
+		var survivalProbabilityYear1 = IDecrement.UniformSurvivalDistribution(calculationDate, calculationDate.FirstDayOfFollowingYear(), deathRateYear1);
 		var survivalProbabilityYear2 = 1 - deathRateYear2;
-		var survivalProbabilityYear3 = IDecrement.UniformSurvivalDistribution(deathRateYear3, decrementDate.FirstDayOfTheYear(), decrementDate);
+		var survivalProbabilityYear3 = IDecrement.UniformSurvivalDistribution(decrementDate.FirstDayOfTheYear(), decrementDate, deathRateYear3);
 
 		var expectedSurvivalProbability = survivalProbabilityYear1 * survivalProbabilityYear2 * survivalProbabilityYear3;
 		var actualSurvivalProbability = Decrement.SurvivalProbability(ManIndividualMocked.Object, calculationDate, decrementDate);
@@ -278,7 +278,7 @@ public class DecrementTTest
 		IDateArrayStrategy dateArrayStrategy = new FirstDayOfEveryMonthStrategy();
 		OrderedDates decrementDates = new(dateArrayStrategy, calculationDate, calculationDate.AddYears(2));
 		decimal[] expectedDecrementProbabilities = new decimal[decrementDates.Count];
-		var newDecrement = new Decrement<IGenderedIndividual, UniformDeathDistributionStrategy>(DecrementTableMocked.Object, ImprovementMocked.Object, AdjustmentMocked.Object);
+		var newDecrement = new Decrement<IGenderedIndividual, UniformDeathDistributionStrategy>(new UniformDeathDistributionStrategy(), DecrementTableMocked.Object, ImprovementMocked.Object, AdjustmentMocked.Object);
 
 
 		// Act
@@ -290,6 +290,19 @@ public class DecrementTTest
 
 		// Assert
 		CollectionAssert.AreEqual(expectedDecrementProbabilities, actualDecrementProbabilities);
+	}
+	[TestMethod]
+	[TestCategory(nameof(Decrement<IGenderedIndividual, UniformDeathDistributionStrategy>.LastPossibleDecrementDate))]
+	public void LastPossibleDecrementDate_EqualsTableLastPossibleDate()
+	{
+		// Arrange
+		
+		// Act
+		var actualLastPossibleDecrementDate = DecrementTableMocked.Object.LastPossibleDecrementDate(ManIndividualMocked.Object);
+		var expectedLastPossibleDecrementDate = Decrement.LastPossibleDecrementDate(ManIndividualMocked.Object);
+
+		// Assert
+		Assert.AreEqual(expectedLastPossibleDecrementDate, actualLastPossibleDecrementDate);
 	}
 }
 

@@ -3,22 +3,28 @@ using Roseau.DateHelpers;
 using Roseau.Decrement.Aggregates.Individuals;
 using Roseau.Decrement.Common.DecrementBetweenIntegralAgeStrategies;
 using Roseau.Decrement.SeedWork;
+using System;
+using System.Reflection;
 
 namespace Roseau.Decrement.Aggregates.Decrements.LifeTables;
 
 public abstract class MultipleDecrement<TIndividual, TDecrementBetweenIntegralAge, TDecrement> : IMultipleDecrement<TIndividual, TDecrementBetweenIntegralAge, TDecrement>
 	where TIndividual : IIndividual
-	where TDecrementBetweenIntegralAge : IDecrementBetweenIntegralAgeStrategy, new()
-	where TDecrement : IDecrement<TIndividual>, IDecrementBetweenIntegralAge<TDecrementBetweenIntegralAge>
+	where TDecrementBetweenIntegralAge : IDecrementBetweenIntegralAgeStrategy
+	where TDecrement : IDecrementBetweenIntegralAge<TIndividual, TDecrementBetweenIntegralAge>
 {
 	private const int TIMESPAN = 300;
+	private readonly TDecrementBetweenIntegralAge _DecrementBetweenIntegralAge;
 	private readonly TDecrement? _Disability;
 	private readonly TDecrement? _Lapse;
 	private readonly TDecrement? _Mortality;
 	protected readonly IMemoryCache _Cache;
 
-	protected MultipleDecrement(TDecrement? disabilityDecrement, TDecrement? lapseDecrement, TDecrement? mortalityDecrement, IMemoryCache memoryCache)
+	protected MultipleDecrement(TDecrementBetweenIntegralAge decrementBetweenIntegralAge, TDecrement? disabilityDecrement, TDecrement? lapseDecrement, TDecrement? mortalityDecrement, IMemoryCache? memoryCache)
 	{
+		if (decrementBetweenIntegralAge == null)
+			throw new ArgumentNullException(nameof(decrementBetweenIntegralAge));
+		_DecrementBetweenIntegralAge = decrementBetweenIntegralAge;
 		_Disability = disabilityDecrement;
 		_Lapse = lapseDecrement;
 		_Mortality = mortalityDecrement;
@@ -30,9 +36,6 @@ public abstract class MultipleDecrement<TIndividual, TDecrementBetweenIntegralAg
 	public TDecrement? Lapse => _Lapse;
 	public TDecrement? Mortality => _Mortality;
 	#endregion
-
-	protected IMultipleDecrement<TIndividual, TDecrementBetweenIntegralAge, TDecrement> AsMultipleDecrement => this;
-	protected delegate decimal DecrementOrSurvivalProbabilityIn(TIndividual individual, in DateOnly calculationDate, in DateOnly decrementDate);
 	protected static MemoryCacheEntryOptions GetMemoryCacheEntryOptions() => new MemoryCacheEntryOptions().SetSize(1)
 																								 .SetSlidingExpiration(TimeSpan.FromSeconds(TIMESPAN))
 																								 .SetPriority(CacheItemPriority.Low);
@@ -51,53 +54,135 @@ public abstract class MultipleDecrement<TIndividual, TDecrementBetweenIntegralAg
 	}
 	private MultipleDecrementProbabilities Probabilities(TIndividual individual, in DateOnly calculationDate, OrderedDates dates)
 	{
+		if (Disability is null && Lapse is null && Mortality is null)
+		{
+			int length = dates.Count;
+			decimal[] survivalProbabilities = new decimal[length];
+			for (int k = 0; k < length; k++)
+				survivalProbabilities[k] = Decimal.One;
+			return new(survivalProbabilities, null, null, null);
+		}
+		if (Disability is null && Lapse is null && Mortality is not null) return ProbabilitiesWithOneDecrement(individual, in calculationDate, dates, Mortality!);
+		if (Disability is not null && Lapse is null && Mortality is null) return ProbabilitiesWithOneDecrement(individual, in calculationDate, dates, Disability);
+		if (Disability is null && Lapse is not null && Mortality is null) return ProbabilitiesWithOneDecrement(individual, in calculationDate, dates, Lapse);
+
+		return ProbabilitiesWithTreeDecrements(individual, in calculationDate, dates);
+
+	}
+	private MultipleDecrementProbabilities ProbabilitiesWithOneDecrement(TIndividual individual, in DateOnly calculationDate, OrderedDates dates, TDecrement firstDecrement)
+	{
 		int length = dates.Count;
 		decimal[] survivalProbabilities = new decimal[length];
-		decimal[]? disabilityProbabilities = Disability is null ? null : new decimal[length];
-		decimal[]? lapseProbabilities = Lapse is null ? null : new decimal[length];
-		decimal[]? mortalityProbabilities = Mortality is null ? null : new decimal[length];
-		MultipleDecrementProbabilities multipleDecrementProbabilities = new(survivalProbabilities, disabilityProbabilities, lapseProbabilities, mortalityProbabilities);
+		decimal[]? firstDecrementProbabilities = new decimal[length];
+		MultipleDecrementProbabilities multipleDecrementProbabilities;
+		if (Disability is not null) multipleDecrementProbabilities = new(survivalProbabilities, firstDecrementProbabilities, null, null);
+		else if (Lapse is not null) multipleDecrementProbabilities = new(survivalProbabilities, null, firstDecrementProbabilities, null);
+		else multipleDecrementProbabilities = new(survivalProbabilities, null, null, firstDecrementProbabilities);
+
 		DateOnly lastPossibleDecrementDate = LastPossibleDecrementDate(individual);
 		int i = 0;
-		decimal defaultValue = 0m;
-		DependentProbabilities(individual, calculationDate, dates[i], out survivalProbabilities[i], out ReferenceOrDefault(ref defaultValue, i, ref disabilityProbabilities), out ReferenceOrDefault(ref defaultValue, i, ref lapseProbabilities), out ReferenceOrDefault(ref defaultValue, i, ref mortalityProbabilities));
+		survivalProbabilities[i] = firstDecrement.SurvivalProbability(individual, in calculationDate, dates[i]);
+		firstDecrementProbabilities[i] = 1 - survivalProbabilities[i];
 		i++;
 		while (i < length
-			&& dates[i] <= lastPossibleDecrementDate)
+				&& dates[i] <= lastPossibleDecrementDate)
 		{
-			DependentProbabilities(individual, dates[i - 1], dates[i], out survivalProbabilities[i], out ReferenceOrDefault(ref defaultValue, i, ref disabilityProbabilities), out ReferenceOrDefault(ref defaultValue, i, ref lapseProbabilities), out ReferenceOrDefault(ref defaultValue, i, ref mortalityProbabilities));
-			survivalProbabilities[i] *= survivalProbabilities[i - 1];
-			if (disabilityProbabilities is not null) disabilityProbabilities[i] = disabilityProbabilities[i - 1] + disabilityProbabilities[i] * survivalProbabilities[i - 1];
-			if (lapseProbabilities is not null) lapseProbabilities[i] = lapseProbabilities[i - 1] + lapseProbabilities[i] * survivalProbabilities[i - 1];
-			if (mortalityProbabilities is not null) mortalityProbabilities[i] = mortalityProbabilities[i - 1] + mortalityProbabilities[i] * survivalProbabilities[i - 1];
+			survivalProbabilities[i] = survivalProbabilities[i - 1] * firstDecrement.SurvivalProbability(individual, dates[i - 1], dates[i]);
+			firstDecrementProbabilities[i] = 1 - survivalProbabilities[i]; 
 			i++;
 		}
 		decimal lastSurvivalProbability = survivalProbabilities[i - 1];
-		decimal lastDisabilityProbability = disabilityProbabilities is not null ? disabilityProbabilities[i - 1] : 0m;
-		decimal lastLapseProbability = lapseProbabilities is not null ? lapseProbabilities[i - 1] : 0m;
-		decimal lastMortalityProbability = mortalityProbabilities is not null ? mortalityProbabilities[i - 1] : 0m;
+		decimal lastFirstDecrementProbability =  firstDecrementProbabilities[i - 1];
 		while (i < length)
 		{
 			survivalProbabilities[i] = lastSurvivalProbability;
-			if (disabilityProbabilities is not null) disabilityProbabilities[i] = lastDisabilityProbability;
-			if (lapseProbabilities is not null) lapseProbabilities[i] = lastLapseProbability;
-			if (mortalityProbabilities is not null) mortalityProbabilities[i] = lastMortalityProbability;
+			firstDecrementProbabilities[i] = lastFirstDecrementProbability;
 			i++;
 		}
 		return multipleDecrementProbabilities;
 	}
-	private static ref decimal ReferenceOrDefault(ref decimal defaultValue, in int index, ref decimal[]? array) => ref (array is null ? ref defaultValue : ref array[index]);
-	protected abstract void CalculateDependentProbabilities(TIndividual individual, in DateOnly calculationDate, in DateOnly decrementDate, ref decimal survivalProbability, ref decimal disabilityProbability, ref decimal lapseProbability, ref decimal mortalityProbability);
-	private MultipleDecrementProbability CalculateDependentProbabilities(TIndividual individual, in DateOnly calculationDate, in DateOnly decrementDate)
+	private MultipleDecrementProbabilities ProbabilitiesWithTreeDecrements(TIndividual individual, in DateOnly calculationDate, OrderedDates dates)
 	{
-		decimal disabilityProbability = Disability?.DecrementProbability(individual, calculationDate, decrementDate) ?? 0m;
-		decimal lapseProbability = Lapse?.DecrementProbability(individual, calculationDate, decrementDate) ?? 0m;
-		decimal mortalityProbability = Mortality?.DecrementProbability(individual, calculationDate, decrementDate) ?? 0m;
-		decimal survivalProbability = (1 - disabilityProbability) * (1 - lapseProbability) * (1 - mortalityProbability);
-		CalculateDependentProbabilities(individual, calculationDate, decrementDate, ref survivalProbability, ref disabilityProbability, ref lapseProbability, ref mortalityProbability);
-		return new MultipleDecrementProbability(survivalProbability, Disability is null ? null : disabilityProbability, Lapse is null ? null : lapseProbability, Mortality is null ? null : mortalityProbability);
+		int length = dates.Count;
+		decimal[] survivalProbabilities = new decimal[length];
+		decimal[]? disabilityProbabilities = new decimal[length];
+		decimal[]? lapseProbabilities = new decimal[length];
+		decimal[]? mortalityProbabilities = new decimal[length];
+		MultipleDecrementProbabilities multipleDecrementProbabilities = new(survivalProbabilities, 
+			_Disability is null ? null : disabilityProbabilities, 
+			_Lapse is null ? null : lapseProbabilities, 
+			_Mortality is null ? null : mortalityProbabilities);
+		DateOnly lastPossibleDecrementDate = LastPossibleDecrementDate(individual);
+		int i = 0;
+		MultipleDecrementProbability currentProbability = GetDependentProbability(individual, calculationDate, dates[i]);
+		survivalProbabilities[i] =		currentProbability.SurvivalProbability;
+		if (_Disability is not null)	disabilityProbabilities[i]	= currentProbability.DisabilityProbability!.Value;
+		if (_Lapse is not null)			lapseProbabilities[i]		= currentProbability.LapseProbability!.Value;
+		if (_Mortality is not null)		mortalityProbabilities[i]	= currentProbability.MortalityProbability!.Value;
+		i++;
+		while (i < length
+			&& dates[i] <= lastPossibleDecrementDate)
+		{
+			currentProbability *= GetDependentProbability(individual, dates[i - 1], dates[i]);
+			survivalProbabilities[i] = currentProbability.SurvivalProbability;
+			if (_Disability is not null)	disabilityProbabilities[i]	= currentProbability.DisabilityProbability!.Value;
+			if (_Lapse is not null)			lapseProbabilities[i]		= currentProbability.LapseProbability!.Value;
+			if (_Mortality is not null)		mortalityProbabilities[i]	= currentProbability.MortalityProbability!.Value;
+			i++;
+		}
+		decimal lastSurvivalProbability = survivalProbabilities[i - 1];
+		decimal lastDisabilityProbability = _Disability is null ? 0m : disabilityProbabilities[i - 1];
+		decimal lastLapseProbability = _Lapse is null ? 0m : lapseProbabilities[i - 1];
+		decimal lastMortalityProbability = _Mortality is null ? 0m : mortalityProbabilities[i - 1];
+		while (i < length)
+		{
+			survivalProbabilities[i] = lastSurvivalProbability;
+			disabilityProbabilities[i] = lastDisabilityProbability;
+			lapseProbabilities[i] = lastLapseProbability;
+			mortalityProbabilities[i] = lastMortalityProbability;
+			if (_Disability is not null)	disabilityProbabilities[i]	= lastDisabilityProbability;
+			if (_Lapse is not null)			lapseProbabilities[i]		= lastLapseProbability;
+			if (_Mortality is not null)		mortalityProbabilities[i]	= lastMortalityProbability;
+			i++;
+		}
+		return multipleDecrementProbabilities;
 	}
 	
+	private MultipleDecrementProbability SurvivalBetweenIntegerAge(TIndividual individual, in DateOnly firstDate, in DateOnly secondDate)
+	{
+		return _DecrementBetweenIntegralAge.ThreeDecrementsProbability(firstDate,
+				secondDate,
+				_Disability?.DecrementRate(individual, firstDate),
+				_Lapse?.DecrementRate(individual, firstDate),
+				_Mortality?.DecrementRate(individual, firstDate));
+	}
+	private MultipleDecrementProbability YearlyMultipleDecrementRate(TIndividual individual, in DateOnly firstDate)
+		=> _DecrementBetweenIntegralAge.ThreeDecrementsRate(_Disability?.DecrementRate(individual, firstDate),
+			_Lapse?.DecrementRate(individual, firstDate),
+			_Mortality?.DecrementRate(individual, firstDate));
+	private MultipleDecrementProbability CalculateDependentProbabilities(TIndividual individual, in DateOnly calculationDate, in DateOnly decrementDate)
+	{
+		return GetDependentProbability(individual, calculationDate, decrementDate);
+	}
+	private MultipleDecrementProbability GetDependentProbability(TIndividual individual, in DateOnly calculationDate, in DateOnly decrementDate)
+	{
+		int decrementYear = decrementDate.Year;
+		if (calculationDate.Year == decrementYear) 
+			return SurvivalBetweenIntegerAge(individual, calculationDate, decrementDate);
+
+		MultipleDecrementProbability multipleDecrementProbability = SurvivalBetweenIntegerAge(individual, calculationDate, decrementDate);
+		DateOnly nextDate = calculationDate.FirstDayOfFollowingYear();
+		while (nextDate.Year < decrementYear)
+		{
+			multipleDecrementProbability *= YearlyMultipleDecrementRate(individual, nextDate);
+			nextDate = nextDate.AddYears(1);
+		}
+		
+		multipleDecrementProbability *= SurvivalBetweenIntegerAge(individual, nextDate, decrementDate);
+		return multipleDecrementProbability;
+	}
+
+	public decimal DecrementRate(TIndividual individual, in DateOnly firstDate) => 1 - YearlyMultipleDecrementRate(individual, firstDate).SurvivalProbability;
 	public DateOnly LastPossibleDecrementDate(TIndividual individual)
 	{
 		DateOnly lastPossibleDisabilityDecrementDate = Disability?.LastPossibleDecrementDate(individual) ?? new();
@@ -107,28 +192,8 @@ public abstract class MultipleDecrement<TIndividual, TDecrementBetweenIntegralAg
 		return lastPossibleDecrementDate < lastPossibleMortalityDecrementDate ? lastPossibleMortalityDecrementDate : lastPossibleDecrementDate;
 
 	}
-	public decimal[] DecrementProbabilities(TIndividual individual, in DateOnly calculationDate, OrderedDates dates)
-	{
-		throw new NotImplementedException();
-	}
-	public decimal[] SurvivalProbabilities(TIndividual individual, in DateOnly calculationDate, OrderedDates dates)
-	{
-		throw new NotImplementedException();
-	}
 	public MultipleDecrementProbability DependentProbability(TIndividual individual, in DateOnly calculationDate, in DateOnly decrementDate) => CalculateDependentProbabilities(individual, calculationDate, decrementDate);
-	private void DependentProbabilities(TIndividual individual, in DateOnly calculationDate, in DateOnly decrementDate, out decimal survivalProbability, out decimal disabilityProbability, out decimal lapseProbability, out decimal mortalityProbability)
-	{
-		disabilityProbability = Disability?.DecrementProbability(individual, calculationDate, decrementDate) ?? 0m;
-		lapseProbability = Lapse?.DecrementProbability(individual, calculationDate, decrementDate) ?? 0m;
-		mortalityProbability = Mortality?.DecrementProbability(individual, calculationDate, decrementDate) ?? 0m;
-		survivalProbability = (1 - disabilityProbability) * (1 - lapseProbability) * (1 - mortalityProbability);
-		CalculateDependentProbabilities(individual, calculationDate, decrementDate, ref survivalProbability, ref disabilityProbability, ref lapseProbability, ref mortalityProbability);
-	}
-	public abstract decimal? DependentDisabilityDecrementProbability(TIndividual individual, in DateOnly calculationDate, in DateOnly decrementDate);
-	public abstract decimal[]? DependentDisabilityDecrementProbabilities(TIndividual individual, in DateOnly calculationDate, OrderedDates dates);
-	public abstract decimal? DependentLapseDecrementProbability(TIndividual individual, in DateOnly calculationDate, in DateOnly decrementDate);
-	public abstract decimal[]? DependentLapseDecrementProbabilities(TIndividual individual, in DateOnly calculationDate, OrderedDates dates);
-	public abstract decimal? DependentMortalityDecrementProbability(TIndividual individual, in DateOnly calculationDate, in DateOnly decrementDate);
-	public abstract decimal[]? DependentMortalityDecrementProbabilities(TIndividual individual, in DateOnly calculationDate, OrderedDates dates);
+	public MultipleDecrementProbabilities DependentProbabilities(TIndividual individual, in DateOnly calculationDate, OrderedDates dates) => GetProbabilities(individual, calculationDate, dates);
+	
 
 }
