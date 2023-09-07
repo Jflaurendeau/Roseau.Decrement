@@ -81,7 +81,7 @@ public class MultipleDecrementTTest
 			hasLapseDecrement == 1 ? decrement2Mocked.Object : null,
 			hasMortalityDecrement == 1 ? decrement3Mocked.Object : null, null);
 
-	// Act
+		// Act
 		var expected = 1 - (1 - hasDisabilityDecrement * decrement1Mocked.Object.DecrementRate(individualMocked.Object, survivalDates[10])) *
 				(1 - hasLapseDecrement * decrement2Mocked.Object.DecrementRate(individualMocked.Object, survivalDates[10])) *
 				(1 - hasMortalityDecrement * decrement3Mocked.Object.DecrementRate(individualMocked.Object, survivalDates[10]));

@@ -8,7 +8,7 @@ using System.Reflection;
 
 namespace Roseau.Decrement.Aggregates.Decrements.LifeTables;
 
-public abstract class MultipleDecrement<TIndividual, TDecrementBetweenIntegralAge, TDecrement> : IMultipleDecrement<TIndividual, TDecrementBetweenIntegralAge, TDecrement>
+public class MultipleDecrement<TIndividual, TDecrementBetweenIntegralAge, TDecrement> : IMultipleDecrement<TIndividual, TDecrementBetweenIntegralAge, TDecrement>
 	where TIndividual : IIndividual
 	where TDecrementBetweenIntegralAge : IDecrementBetweenIntegralAgeStrategy
 	where TDecrement : IDecrementBetweenIntegralAge<TIndividual, TDecrementBetweenIntegralAge>
@@ -20,7 +20,7 @@ public abstract class MultipleDecrement<TIndividual, TDecrementBetweenIntegralAg
 	private readonly TDecrement? _Mortality;
 	protected readonly IMemoryCache _Cache;
 
-	protected MultipleDecrement(TDecrementBetweenIntegralAge decrementBetweenIntegralAge, TDecrement? disabilityDecrement, TDecrement? lapseDecrement, TDecrement? mortalityDecrement, IMemoryCache? memoryCache)
+	public MultipleDecrement(TDecrementBetweenIntegralAge decrementBetweenIntegralAge, TDecrement? disabilityDecrement, TDecrement? lapseDecrement, TDecrement? mortalityDecrement, IMemoryCache? memoryCache)
 	{
 		if (decrementBetweenIntegralAge == null)
 			throw new ArgumentNullException(nameof(decrementBetweenIntegralAge));

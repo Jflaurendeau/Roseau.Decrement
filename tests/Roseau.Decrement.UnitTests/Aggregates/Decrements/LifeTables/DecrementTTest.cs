@@ -95,6 +95,16 @@ public class DecrementTTest
 	}
 	[TestMethod]
 	[TestCategory("Constructors")]
+	public void Constructor_WithANullDistributionStrategy_ThrowsArguementNullException()
+	{
+		// Arrange
+
+		// Act
+		// Assert
+		Assert.ThrowsException<ArgumentNullException>(() => new Decrement<IGenderedIndividual, UniformDeathDistributionStrategy>(null!, null!));
+	}
+	[TestMethod]
+	[TestCategory("Constructors")]
 	public void Constructor_WithTableAndImprovementOnly_DoesNotThrow()
 	{
 		// Arrange
